@@ -75,6 +75,29 @@ class Keyboard{
         ]
       ]
     }
+
+    valueExchangeEndMenu(end?: boolean){
+      return end === true 
+      ?
+      [
+        [
+          {
+            text: "В МЕНЮ"
+          }
+        ]
+      ]
+      :
+      [
+        [
+          {
+            text: "В МЕНЮ"
+          },
+          {
+            text: "Більше ->"
+          },
+        ]
+      ]
+    }
 }
 
 const keyboards = new Keyboard();

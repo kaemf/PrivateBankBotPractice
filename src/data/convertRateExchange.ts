@@ -165,4 +165,3 @@ export const convertRateExchange = {
 export function convertToNameRateExchange(value: string): string {
     return Object.keys(convertRateExchange).find(key => convertRateExchange[key] === value)!;
 }
-//

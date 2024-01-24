@@ -5,3 +5,8 @@ export type UserScriptState =
   | "FunctionRoot"
   | "EndFunctionManager"
   | "ValuesMenuHandlerAndRoot"
+  | "_ValuesMenuHandlerAndRoot"
+  | "__ValuesMenuHandlerAndRoot"
+  | "___ValuesMenuHandlerAndRoot"
+  | "____ValuesMenuHandlerAndRoot"
+  | "_____ValuesMenuHandlerAndRoot"

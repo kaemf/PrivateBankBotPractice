@@ -19,12 +19,19 @@ const script = {
   values: {
     entire: `Чудесно, тепер оберіть конекретніше, що вам саме потрібно`,
 
-    valueData: (name: string, value: string, code: string) => 
-    `${name} - ${value} ${code.toLocaleLowerCase()}.`
+    exchangeAllLoad:{
+      state0: "Почекайте будь ласка, завантаження курсів валют...",
+      state1: "Почекайте будь ласка, завантажуємо ще більше курсів...",
+      state2: "Зачекайте, будь ласка, ще трохи, завантажуємо ще більше курсів...",
+      state3: "Знову ж таки, зачекайте хвильку, завантажуємо ще більше курсів...",
+      state4: "Мить і все буде готово, завантажуємо ще більше курсів...",
+      state5: "І останній раз... завантажуємо ще більше курсів..."
+    },
+
+    valueData: (name: string, value: string, code: string, number: number) => 
+    number < 1 ? `<b>${name}</b> - ${value} ${code.toLocaleLowerCase()}.` : `|\n|\n<b>${name}</b> - ${value} ${code.toLocaleLowerCase()}.`
   }
 
 }
 
 export default script;
-
-//✅ пакет “${packetName}”//

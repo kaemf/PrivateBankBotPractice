@@ -119,9 +119,13 @@ async function main() {
 
     switch(data.text){
       case "Баланс та історія транзакцій":
-        //dev
-        // ctx.reply(script.trialLesson.entireLesson, {reply_markup : {remove_keyboard: true}});
-        await set('state')('RespondGraphicAndRequestLanguageLevel');
+        ctx.reply("В розробці...", {
+          parse_mode: "Markdown",
+          reply_markup: {
+            one_time_keyboard: true,
+            keyboard: keyboards.menu(),
+          },
+        })
         break;
 
       case "Валюти":
@@ -136,15 +140,13 @@ async function main() {
         break;
 
       case "Лайв підтримка":
-        //dev
-        ctx.reply('Виберіть питання, яке вас цікавить:', {
+        ctx.reply("В розробці...", {
+          parse_mode: "Markdown",
           reply_markup: {
             one_time_keyboard: true,
-            keyboard: q_a
-          }
+            keyboard: keyboards.menu(),
+          },
         })
-  
-        await set('state')('Q&ARespondAndRoot');
         break;
 
       default:
@@ -155,6 +157,7 @@ async function main() {
             keyboard: keyboards.menu(),
           },
         });
+        break;
     }
   });
 
@@ -163,10 +166,264 @@ async function main() {
 
     switch(data.text){
       case "Курси валют":
+        const messageToDelete = await ctx.reply(script.values.exchangeAllLoad.state0);
+        let response = '';
         for (let i = 0; i < 10; i++){
-          await ctx.reply(script.values.valueData(`${ExchangeRate[i].flag} ${convertToNameRateExchange(ExchangeRate[i].code)}`, 
-          await exchangeRateS.getSpecificRates('UAH', convertToNameRateExchange(ExchangeRate[i].code)), 'UAH'))
+          response += `${script.values.valueData(`${ExchangeRate[i].flag} ${convertToNameRateExchange(ExchangeRate[i].code)}`, 
+          await exchangeRateS.getSpecificRates('UAH', convertToNameRateExchange(ExchangeRate[i].code)), 'UAH', i)}\n`
         }
+
+        ctx.deleteMessage(messageToDelete.message_id);
+        ctx.reply(response, {
+          parse_mode: "HTML",
+          reply_markup: {
+            one_time_keyboard: true,
+            keyboard: keyboards.valueExchangeEndMenu()
+          }
+        });
+        await set('state')('_ValuesMenuHandlerAndRoot')
+        break;
+
+      default:
+        await ctx.reply(script.error.errorExceptionFunction, {
+          parse_mode: "Markdown",
+          reply_markup: {
+            one_time_keyboard: true,
+            keyboard: keyboards.valuesMenu(),
+          },
+        });
+        break;
+    }
+  })
+
+  onTextMessage('_ValuesMenuHandlerAndRoot', async(ctx, user, data) => {
+    const set = db.set(ctx?.chat?.id ?? -1);
+
+    switch(data.text){
+      case "Більше ->":
+        const messageToDelete = await ctx.reply(script.values.exchangeAllLoad.state1);
+        let response = '';
+        for (let i = 10; i < 20; i++){
+          response += `${script.values.valueData(`${ExchangeRate[i].flag} ${convertToNameRateExchange(ExchangeRate[i].code)}`, 
+          await exchangeRateS.getSpecificRates('UAH', convertToNameRateExchange(ExchangeRate[i].code)), 'UAH', i)}\n`
+        }
+
+        ctx.deleteMessage(messageToDelete.message_id);
+        ctx.reply(response, {
+          parse_mode: "HTML",
+          reply_markup: {
+            one_time_keyboard: true,
+            keyboard: keyboards.valueExchangeEndMenu()
+          }
+        });
+        await set('state')('__ValuesMenuHandlerAndRoot')
+        break;
+
+      case "В МЕНЮ":
+        ctx.reply(script.entire.functionEntire, {
+          parse_mode: "Markdown",
+          reply_markup: {
+            one_time_keyboard: true,
+            keyboard: keyboards.menu(),
+          },
+        });
+        await set('state')('FunctionRoot');
+        break;
+
+      default:
+        await ctx.reply(script.error.errorExceptionFunction, {
+          parse_mode: "Markdown",
+          reply_markup: {
+            one_time_keyboard: true,
+            keyboard: keyboards.valueExchangeEndMenu(),
+          },
+        });
+        break;
+    }
+  })
+
+  onTextMessage('__ValuesMenuHandlerAndRoot', async(ctx, user, data) => {
+    const set = db.set(ctx?.chat?.id ?? -1);
+
+    switch(data.text){
+      case "Більше ->":
+        const messageToDelete = await ctx.reply(script.values.exchangeAllLoad.state2);
+        let response = '';
+        for (let i = 20; i < 40; i++){
+          response += `${script.values.valueData(`${ExchangeRate[i].flag} ${convertToNameRateExchange(ExchangeRate[i].code)}`, 
+          await exchangeRateS.getSpecificRates('UAH', convertToNameRateExchange(ExchangeRate[i].code)), 'UAH', i)}\n`
+        }
+
+        ctx.deleteMessage(messageToDelete.message_id);
+        ctx.reply(response, {
+          parse_mode: "HTML",
+          reply_markup: {
+            one_time_keyboard: true,
+            keyboard: keyboards.valueExchangeEndMenu()
+          }
+        });
+        await set('state')('___ValuesMenuHandlerAndRoot')
+        break;
+
+      case "В МЕНЮ":
+        ctx.reply(script.entire.functionEntire, {
+          parse_mode: "Markdown",
+          reply_markup: {
+            one_time_keyboard: true,
+            keyboard: keyboards.menu(),
+          },
+        });
+        await set('state')('FunctionRoot');
+        break;
+
+      default:
+        await ctx.reply(script.error.errorExceptionFunction, {
+          parse_mode: "Markdown",
+          reply_markup: {
+            one_time_keyboard: true,
+            keyboard: keyboards.valueExchangeEndMenu(),
+          },
+        });
+        break;
+    }
+  })
+
+  onTextMessage('___ValuesMenuHandlerAndRoot', async(ctx, user, data) => {
+    const set = db.set(ctx?.chat?.id ?? -1);
+
+    switch(data.text){
+      case "Більше ->":
+        const messageToDelete = await ctx.reply(script.values.exchangeAllLoad.state3);
+        let response = '';
+        for (let i = 40; i < 70; i++){
+          response += `${script.values.valueData(`${ExchangeRate[i].flag} ${convertToNameRateExchange(ExchangeRate[i].code)}`, 
+          await exchangeRateS.getSpecificRates('UAH', convertToNameRateExchange(ExchangeRate[i].code)), 'UAH', i)}\n`
+        }
+
+        ctx.deleteMessage(messageToDelete.message_id);
+        ctx.reply(response, {
+          parse_mode: "HTML",
+          reply_markup: {
+            one_time_keyboard: true,
+            keyboard: keyboards.valueExchangeEndMenu()
+          }
+        });
+        await set('state')('____ValuesMenuHandlerAndRoot')
+        break;
+
+      case "В МЕНЮ":
+        ctx.reply(script.entire.functionEntire, {
+          parse_mode: "Markdown",
+          reply_markup: {
+            one_time_keyboard: true,
+            keyboard: keyboards.menu(),
+          },
+        });
+        await set('state')('FunctionRoot');
+        break;
+
+      default:
+        await ctx.reply(script.error.errorExceptionFunction, {
+          parse_mode: "Markdown",
+          reply_markup: {
+            one_time_keyboard: true,
+            keyboard: keyboards.valueExchangeEndMenu(),
+          },
+        });
+        break;
+    }
+  })
+
+  onTextMessage('____ValuesMenuHandlerAndRoot', async(ctx, user, data) => {
+    const set = db.set(ctx?.chat?.id ?? -1);
+
+    switch(data.text){
+      case "Більше ->":
+        const messageToDelete = await ctx.reply(script.values.exchangeAllLoad.state4);
+        let response = '';
+        for (let i = 70; i < 110; i++){
+          response += `${script.values.valueData(`${ExchangeRate[i].flag} ${convertToNameRateExchange(ExchangeRate[i].code)}`, 
+          await exchangeRateS.getSpecificRates('UAH', convertToNameRateExchange(ExchangeRate[i].code)), 'UAH', i)}\n`
+        }
+
+        ctx.deleteMessage(messageToDelete.message_id);
+        ctx.reply(response, {
+          parse_mode: "HTML",
+          reply_markup: {
+            one_time_keyboard: true,
+            keyboard: keyboards.valueExchangeEndMenu()
+          }
+        });
+        await set('state')('_____ValuesMenuHandlerAndRoot')
+        break;
+      
+      case "В МЕНЮ":
+        ctx.reply(script.entire.functionEntire, {
+          parse_mode: "Markdown",
+          reply_markup: {
+            one_time_keyboard: true,
+            keyboard: keyboards.menu(),
+          },
+        });
+        await set('state')('FunctionRoot');
+        break;
+
+      default:
+        await ctx.reply(script.error.errorExceptionFunction, {
+          parse_mode: "Markdown",
+          reply_markup: {
+            one_time_keyboard: true,
+            keyboard: keyboards.valueExchangeEndMenu(),
+          },
+        });
+        break;
+    }
+  })
+
+  onTextMessage('_____ValuesMenuHandlerAndRoot', async(ctx, user, data) => {
+    const set = db.set(ctx?.chat?.id ?? -1);
+
+    switch(data.text){
+      case "Більше ->":
+        const messageToDelete = await ctx.reply(script.values.exchangeAllLoad.state5);
+        let response = '';
+        for (let i = 100; i <= 161; i++){
+          response += `${script.values.valueData(`${ExchangeRate[i].flag} ${convertToNameRateExchange(ExchangeRate[i].code)}`, 
+          await exchangeRateS.getSpecificRates('UAH', convertToNameRateExchange(ExchangeRate[i].code)), 'UAH', i)}\n`
+        }
+
+        ctx.deleteMessage(messageToDelete.message_id);
+        ctx.reply(response, {
+          parse_mode: "HTML",
+          reply_markup: {
+            one_time_keyboard: true,
+            keyboard: keyboards.valueExchangeEndMenu(true)
+          }
+        });
+        await set('state')('EndFunctionManager')
+        break;
+
+      case "В МЕНЮ":
+        ctx.reply(script.entire.functionEntire, {
+          parse_mode: "Markdown",
+          reply_markup: {
+            one_time_keyboard: true,
+            keyboard: keyboards.menu(),
+          },
+        });
+        await set('state')('FunctionRoot');
+        break;
+
+      default:
+        await ctx.reply(script.error.errorExceptionFunction, {
+          parse_mode: "Markdown",
+          reply_markup: {
+            one_time_keyboard: true,
+            keyboard: keyboards.valueExchangeEndMenu(),
+          },
+        });
+        break;
+      
     }
   })
 
