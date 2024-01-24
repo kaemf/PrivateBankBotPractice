@@ -19,7 +19,7 @@ const script = {
   values: {
     entire: `Чудесно, тепер оберіть конекретніше, що вам саме потрібно`,
 
-    exchangeAllLoad:{
+    exchangeAllLoad: {
       state0: "Почекайте будь ласка, завантаження курсів валют...",
       state1: "Почекайте будь ласка, завантажуємо ще більше курсів...",
       state2: "Зачекайте, будь ласка, ще трохи, завантажуємо ще більше курсів...",
@@ -28,8 +28,15 @@ const script = {
       state5: "І останній раз... завантажуємо ще більше курсів..."
     },
 
+    chooseSpecificExchangeRate: `Виберіть, будь ласка, валюту ⤵️`,
+
+    requestNumberToConvert: `Яку суму потрібно конвертувати?`,
+
     valueData: (name: string, value: string, code: string, number: number) => 
-    number < 1 ? `<b>${name}</b> - ${value} ${code.toLocaleLowerCase()}.` : `|\n|\n<b>${name}</b> - ${value} ${code.toLocaleLowerCase()}.`
+    number < 1 ? `<b>${name}</b> - ${value} ${code.toLocaleLowerCase()}.` : `|\n|\n<b>${name}</b> - ${value} ${code.toLocaleLowerCase()}.`,
+
+    customValueData: (name: string, nonprocessed: string, value: number, code: string) => 
+    `<b>${nonprocessed}</b> uah. в <b>${name}</b> становить <b>${value}</b> ${code.toLocaleLowerCase()}.`
   }
 
 }

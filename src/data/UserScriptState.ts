@@ -10,3 +10,6 @@ export type UserScriptState =
   | "___ValuesMenuHandlerAndRoot"
   | "____ValuesMenuHandlerAndRoot"
   | "_____ValuesMenuHandlerAndRoot"
+  | "RespondExchangeAndReturn"
+  | "RespondNumberAndRequestCountry"
+  | "RespondCoutryAndProcess"

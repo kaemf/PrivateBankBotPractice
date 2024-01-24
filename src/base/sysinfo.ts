@@ -1,5 +1,6 @@
 export function about(version: string) {
-    return `Бот банку "ПриватБанк"\n
+    return `Бот українскього банку "ПриватБанк"\n
+Розроблений на практику університету Житомирська Політехніка\n
 Версія: <b>${version}</b>\n
 Розробник: <b>TheLaidSon (Yaroslav Volkivskyi)</b>\n
 Контакти:
@@ -8,4 +9,4 @@ export function about(version: string) {
 <a href="https://docs.google.com/document/d/1QLJbMIqZCfiYDjhAfQIDoy2rbIV4nEf2ZnZm0dmZ9yU/edit?usp=sharing"><b>Список змін</b></a>`
 }
 
-export const botVersion = '0.0.2';
+export const botVersion = '0.0.3';

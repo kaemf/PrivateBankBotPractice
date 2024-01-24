@@ -1,3 +1,5 @@
+import { getAllKeys } from "./convertRateExchange"
+
 class Keyboard{
     menu(){
         return [
@@ -97,6 +99,12 @@ class Keyboard{
           },
         ]
       ]
+    }
+
+    countryRateMenu(){
+      return getAllKeys().map((el: string) => {
+        return [{ text: el }];
+      }).filter(buttons => buttons !== null);
     }
 }
 

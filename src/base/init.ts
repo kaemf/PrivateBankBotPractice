@@ -1,7 +1,7 @@
 // UKnowBot for Alexander Volkivskyi (My Brother)
 // Developed by Yaroslav Volkivskyi (TheLaidSon)
 
-// Actual v0.0.2
+// Actual v0.0.3
 
 // Initialization File
 
@@ -10,7 +10,7 @@ import { createClient } from "redis";
 import { MongoClient } from "mongodb";
 import { botVersion } from "./sysinfo";
 
-async function connectToClubDB() {
+async function connectToMainDB() {
   try {
     const client = new MongoClient('mongodb://localhost:27017/?family=4');
 
@@ -37,7 +37,7 @@ export default async function init() {
   console.log("Done");
 
   console.log("Connecting to mongodb...")
-  const bankdb = await connectToClubDB();
+  const bankdb = await connectToMainDB();
   console.log("Done")
 
   console.log("Creating telegraf bot instanse...");

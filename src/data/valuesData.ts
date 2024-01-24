@@ -168,4 +168,9 @@ const ExchangeRate: Values[] = [
     { flag: "🇿🇼", code: "ZWL" }
 ];
 
+export function getFlagByCode(code: string) {
+    const currency = ExchangeRate.find(item => item.code === code);
+    return currency ? currency.flag : false;
+}
+
 export default ExchangeRate as Values[];

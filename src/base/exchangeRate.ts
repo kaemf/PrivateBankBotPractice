@@ -14,17 +14,6 @@ class ExchangeRates{
       }
     }
 
-    async getAllRates(current: string){
-        try {
-            const data = await this.getExchangeRates(current);
-
-            return data;
-        } catch (error) {
-            console.log('Error to process conversion rates: ', error);
-            return false;
-        }
-    }
-
     async getSpecificRates(current: string, specific: string){
         try {
             const data = await this.getExchangeRates(current),

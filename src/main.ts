@@ -1,18 +1,18 @@
 // PrivateBank Bot Practive University Work
 // Developed by Yaroslav Volkivskyi (TheLaidSon)
 
-// Actual v0.0.2
+// Actual v0.0.3
 
 // Main File
 
-import { q_a } from "./data/qa";
+// import { q_a } from "./data/qa";
 import { inlineApprovePayment } from "./data/paymentKeyboards";
 import exchangeRateS from "./base/exchangeRate";
 import { botVersion, about } from "./base/sysinfo";
 import formattedName from "./base/nameProcess";
 import { CheckException } from "./base/check";
-import ExchangeRate, { Values } from "./data/valuesData";
-import { convertToNameRateExchange } from "./data/convertRateExchange";
+import ExchangeRate, { Values, getFlagByCode } from "./data/valuesData";
+import { convertRateExchange, convertToNameRateExchange } from "./data/convertRateExchange";
 import keyboards from "./data/keyboards";
 import arch from "./base/architecture";
 import DateRecord from "./data/date";
@@ -58,10 +58,9 @@ async function main() {
   })
   
   //Get real user name and root to menu
-  onTextMessage('WaitingForName', async (ctx, user, data) => {
+  onTextMessage('WaitingForName', async (ctx, user, set, data) => {
     if (CheckException.TextException(data)){
-      const name = formattedName(data.text),
-        set = db.set(ctx?.chat?.id ?? -1);
+      const name = formattedName(data.text);
       
       console.log(`Name: ${name}`)
       await set('state')('AskingForPhoneNumber');
@@ -84,9 +83,7 @@ async function main() {
   });
 
   //Get user phone number with using funciion of getting
-  onContactMessage('AskingForPhoneNumber', async (ctx, user, data) => {
-    const set = db.set(ctx?.chat?.id ?? -1);
-
+  onContactMessage('AskingForPhoneNumber', async (ctx, user, set, data) => {
     if (CheckException.PhoneException(data)){
       set('phone_number')(data.phone_number);
   
@@ -112,9 +109,7 @@ async function main() {
     }
   });
 
-  onTextMessage('FunctionRoot', async(ctx, user, data) => {
-    const set = db.set(ctx?.chat?.id ?? -1);
-
+  onTextMessage('FunctionRoot', async(ctx, user, set, data) => {
     await set('recording-date')(DateRecord());
 
     switch(data.text){
@@ -161,9 +156,7 @@ async function main() {
     }
   });
 
-  onTextMessage('ValuesMenuHandlerAndRoot', async(ctx, user, data) => {
-    const set = db.set(ctx?.chat?.id ?? -1);
-
+  onTextMessage('ValuesMenuHandlerAndRoot', async(ctx, user, set, data) => {
     switch(data.text){
       case "Курси валют":
         const messageToDelete = await ctx.reply(script.values.exchangeAllLoad.state0);
@@ -184,6 +177,22 @@ async function main() {
         await set('state')('_ValuesMenuHandlerAndRoot')
         break;
 
+      case "Курс конкретної валюти":
+        ctx.reply(script.values.chooseSpecificExchangeRate, {
+          reply_markup: {
+            one_time_keyboard: true, 
+            keyboard: keyboards.countryRateMenu()
+          }
+        })
+
+        await set('state')('RespondExchangeAndReturn')
+        break;
+
+      case "Конвертація в валюту":
+        ctx.reply(script.values.requestNumberToConvert);
+        await set('state')('RespondNumberAndRequestCountry');
+        break;
+
       default:
         await ctx.reply(script.error.errorExceptionFunction, {
           parse_mode: "Markdown",
@@ -196,9 +205,7 @@ async function main() {
     }
   })
 
-  onTextMessage('_ValuesMenuHandlerAndRoot', async(ctx, user, data) => {
-    const set = db.set(ctx?.chat?.id ?? -1);
-
+  onTextMessage('_ValuesMenuHandlerAndRoot', async(ctx, user, set, data) => {
     switch(data.text){
       case "Більше ->":
         const messageToDelete = await ctx.reply(script.values.exchangeAllLoad.state1);
@@ -242,9 +249,7 @@ async function main() {
     }
   })
 
-  onTextMessage('__ValuesMenuHandlerAndRoot', async(ctx, user, data) => {
-    const set = db.set(ctx?.chat?.id ?? -1);
-
+  onTextMessage('__ValuesMenuHandlerAndRoot', async(ctx, user, set, data) => {
     switch(data.text){
       case "Більше ->":
         const messageToDelete = await ctx.reply(script.values.exchangeAllLoad.state2);
@@ -288,9 +293,7 @@ async function main() {
     }
   })
 
-  onTextMessage('___ValuesMenuHandlerAndRoot', async(ctx, user, data) => {
-    const set = db.set(ctx?.chat?.id ?? -1);
-
+  onTextMessage('___ValuesMenuHandlerAndRoot', async(ctx, user, set, data) => {
     switch(data.text){
       case "Більше ->":
         const messageToDelete = await ctx.reply(script.values.exchangeAllLoad.state3);
@@ -334,9 +337,7 @@ async function main() {
     }
   })
 
-  onTextMessage('____ValuesMenuHandlerAndRoot', async(ctx, user, data) => {
-    const set = db.set(ctx?.chat?.id ?? -1);
-
+  onTextMessage('____ValuesMenuHandlerAndRoot', async(ctx, user, set, data) => {
     switch(data.text){
       case "Більше ->":
         const messageToDelete = await ctx.reply(script.values.exchangeAllLoad.state4);
@@ -380,9 +381,7 @@ async function main() {
     }
   })
 
-  onTextMessage('_____ValuesMenuHandlerAndRoot', async(ctx, user, data) => {
-    const set = db.set(ctx?.chat?.id ?? -1);
-
+  onTextMessage('_____ValuesMenuHandlerAndRoot', async(ctx, user, set, data) => {
     switch(data.text){
       case "Більше ->":
         const messageToDelete = await ctx.reply(script.values.exchangeAllLoad.state5);
@@ -415,7 +414,7 @@ async function main() {
         break;
 
       default:
-        await ctx.reply(script.error.errorExceptionFunction, {
+        await ctx.reply(script.error.buttonError, {
           parse_mode: "Markdown",
           reply_markup: {
             one_time_keyboard: true,
@@ -427,11 +426,46 @@ async function main() {
     }
   })
 
+  onTextMessage('RespondExchangeAndReturn', async(ctx, user, set, data) => {
+    if (CheckException.TextException(data)){
+      const input = await exchangeRateS.getSpecificRates("UAH", data.text);
+
+      if (input){
+        ctx.reply(script.values.valueData(`${getFlagByCode(convertRateExchange[data.text]) ? getFlagByCode(convertRateExchange[data.text]) : "🏳"} ${data.text}`, 
+        input, convertRateExchange[data.text], 0), {
+          parse_mode: "HTML",
+          reply_markup: {
+            one_time_keyboard: true, 
+            keyboard: keyboards.endRootMenu()
+          }
+        })
+
+        await set('state')('EndFunctionManager');
+      }
+      else{
+        await ctx.reply(script.error.buttonError, {
+          parse_mode: "Markdown",
+          reply_markup: {
+            one_time_keyboard: true,
+            keyboard: keyboards.countryRateMenu(),
+          },
+        });
+      }
+    }
+    else{
+      await ctx.reply(script.error.buttonError, {
+        parse_mode: "Markdown",
+        reply_markup: {
+          one_time_keyboard: true,
+          keyboard: keyboards.countryRateMenu(),
+        },
+      });
+    }
+  })
+
   
 
-  onTextMessage('EndFunctionManager', async(ctx, user, data) => {
-    const set = db.set(ctx?.chat?.id ?? -1);
-
+  onTextMessage('EndFunctionManager', async(ctx, user, set, data) => {
     switch(data.text){
       case "В МЕНЮ":
         ctx.reply(script.entire.functionEntire, {
@@ -463,6 +497,58 @@ async function main() {
         });
     }
   });
+
+  onTextMessage('RespondNumberAndRequestCountry', async(ctx, user, set, data) => {
+    if (CheckException.TextException(data) && !isNaN(parseInt(data.text)) && parseInt(data.text) >= 0){
+      await set('valueInputedForConvert')(data.text);
+
+      ctx.reply(script.values.chooseSpecificExchangeRate, {
+        reply_markup: {
+          one_time_keyboard: true,
+          keyboard: keyboards.countryRateMenu()
+        }
+      })
+
+      await set('state')('RespondCoutryAndProcess');
+    }
+    else{
+      ctx.reply('Вам потрібно ввести цифру більше 0');
+    }
+  })
+
+  onTextMessage('RespondCoutryAndProcess', async(ctx, user, set, data) => {
+    if (CheckException.TextException(data)){
+      const input = await exchangeRateS.getSpecificRates("UAH", data.text);
+      if (input){
+        ctx.reply(script.values.customValueData(`${getFlagByCode(convertRateExchange[data.text])} ${data.text}`, user['valueInputedForConvert'], 
+        parseInt(user['valueInputedForConvert']) * input, convertRateExchange[data.text]), {
+          parse_mode: "HTML",
+          reply_markup: {
+            one_time_keyboard: true,
+            keyboard: keyboards.endRootMenu()
+          }
+        });
+
+        await set('state')('EndFunctionManager');
+      }
+      else{
+        ctx.reply(script.error.buttonError, {
+          reply_markup: {
+            one_time_keyboard: true,
+            keyboard: keyboards.countryRateMenu()
+          }
+        })
+      }
+    }
+    else{
+      ctx.reply(script.error.buttonError, {
+        reply_markup: {
+          one_time_keyboard: true,
+          keyboard: keyboards.countryRateMenu()
+        }
+      })
+    }
+  })
 
   bot.action(/^approvePayment:(\d+)$/, async (ctx) => {
     const id = Number.parseInt(ctx.match[1]);
@@ -526,5 +612,3 @@ async function main() {
 }
 
 main();
-
-// update
