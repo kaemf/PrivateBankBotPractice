@@ -37,6 +37,15 @@ const script = {
 
     customValueData: (name: string, nonprocessed: string, value: number, code: string) => 
     `<b>${nonprocessed}</b> uah. в <b>${name}</b> становить <b>${value}</b> ${code.toLocaleLowerCase()}.`
+  },
+
+  balanceAndHistory: {
+    showData: (author: string, date: string, type: string, text: string) => 
+    `🛍<b>${author}</b>\n\n<b>💸${type === 'outgoing' ? (text === 'fail' ? '' : '-') : '+'}${text === 'fail' ? "Недостатньо коштів для транзакції" : text}</b> uah.\n\n\n📅 ${date} 📅`,
+
+    showErrorToShowData: `У вас відсутні транзакції.`,
+
+    showActualCardBalance: (balance: number) => `Баланс вашої картки - ${balance} uah.`
   }
 
 }

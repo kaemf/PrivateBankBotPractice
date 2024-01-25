@@ -2,6 +2,7 @@ import init from './init'
 import { Context } from "telegraf";
 import { Update } from "telegraf/typings/core/types/typegram";
 import { UserScriptState } from "../data/UserScriptState";
+import { ObjectId } from 'mongodb';
 type ActionType<T> = (ctx: Context<Update>, user: {[x: string]: string}, set: (key: string) => (value: string) => Promise<number>, data: T) => void;
 
 export default async function arch() {
@@ -186,7 +187,7 @@ export default async function arch() {
       return await this.usersData.findOne({ id: id });
     }
 
-    async AddData(data: { name: string, date: string, balance: number, historyAuthor: string, historyDate: string, historyTypeOfTransfer: string, historyText: string }) {
+    async AddData(data: { id: number, name: string, date: string, card: number, phone: string, balance: number, historyAuthor: string, historyDate: string, historyTypeOfTransfer: string, historyText: string }) {
       return await this.usersData.insertOne(data);
     }
     
@@ -272,6 +273,9 @@ export default async function arch() {
           }}
   
           await this.usersData.updateOne({_id: user?._id}, updateObject);
+          await this.ChangeCardBalance(idUser, data.historyTypeOfTransfer === "incoming" ? 
+          parseInt(user!.balance) + parseInt(data.historyText) : parseInt(user!.balance) < parseInt(data.historyText) ?
+          (parseInt(user!.balance) - parseInt(data.historyText)) : parseInt(user!.balance));
         }
         else{
           console.error('\n\n\n Error while processing code, uncorrect parameter received in WriteNewTransactionHistory() function. Use "incoming" or "outgoing".');
@@ -283,7 +287,8 @@ export default async function arch() {
         const dataContain = historyTextDB.split(',');
 
         if (historyTextDB.indexOf(data.historyText.toString()) === -1){
-          dataContain.push(data.historyText);
+          dataContain.push(data.historyTypeOfTransfer === 'outgoing' && parseInt(user!.balance) < parseInt(data.historyText) ? 
+          "fail" : data.historyText);
   
           const updateObject = {$set : {
             historyText: dataContain.join(',')
@@ -308,7 +313,31 @@ export default async function arch() {
       await this.usersData.updateOne({id: id}, updateObject);
     }
 
+    async GetUserTransactionsHistory(idUser: number){
+      const user = await this.GetUserData(idUser),
+        historyAuthorDB = user!.historyAuthor !== '' ? user!.historyAuthor.toString() : false,
+        historyDateDB = user!.historyDate !== '' ? user!.historyDate.toString() : false,
+        historyTypeOfTransferDB = user!.historyTypeOfTransfer !== '' ? user!.historyTypeOfTransfer.toString() : false,
+        historyTextDB = user!.historyText !== '' ? user!.historyText.toString() : false;
+      
+      let historyAuthorDBProcessed = 'Дані Відсутні',
+        historyDateDBProcessed = 'Дані Відсутні',
+        historyTypeOfTransferDBProcessed = 'Дані Відсутні',
+        historyTextDBProcessed = 'Дані Відсутні';
+
+      if (historyAuthorDB) historyAuthorDBProcessed = historyAuthorDB.split(',');
+    
+      if (historyDateDB) historyDateDBProcessed = historyDateDB.split(',');
+
+      if (historyTypeOfTransferDB) historyTypeOfTransferDBProcessed = historyTypeOfTransferDB.split(',');
+
+      if (historyTextDB) historyTextDBProcessed = historyTextDB.split(',');
+
+      return [ historyAuthorDBProcessed, historyDateDBProcessed, historyTypeOfTransferDBProcessed, historyTextDBProcessed ] as const;
+    }
   }
 
-  return [onTextMessage, onContactMessage, onPhotoMessage, bot, db] as const;
+  const dbRequest : DBRequest = new DBRequest();
+
+  return [onTextMessage, onContactMessage, onPhotoMessage, bot, db, dbRequest] as const;
 }
