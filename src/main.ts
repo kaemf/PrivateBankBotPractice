@@ -1,7 +1,7 @@
 // PrivateBank Bot Practive University Work
 // Developed by Yaroslav Volkivskyi (TheLaidSon)
 
-// Actual v0.0.3
+// Actual v0.0.4
 
 // Main File
 
@@ -16,13 +16,13 @@ import ExchangeRate, { Values, getFlagByCode } from "./data/valuesData";
 import { convertRateExchange, convertToNameRateExchange } from "./data/convertRateExchange";
 import keyboards from "./data/keyboards";
 import arch from "./base/architecture";
-import DateRecord from "./data/date";
+import DateRecord, { DateHistory } from "./data/date";
 import script from "./data/script";
 import { Markup } from "telegraf";
+import GenerateNewTransactionHistory from "./data/generateNewTransactionHistory";
 
 async function main() {
   const [ onTextMessage, onContactMessage, , bot, db, dbRequest ] = await arch();
-  let timer = Timer();
 
   //Begin bot work, collecting user data (his telegram name)
   bot.start((ctx) => {
@@ -32,6 +32,7 @@ async function main() {
 
     const username = ctx.chat.type === "private" ? ctx.chat.username ?? null : null;
     set('username')(username ?? 'unknown');
+    handleStart(ctx?.chat?.id, Timer());
     db.get(ctx.chat.id)('registration-date')
       .then((value : string | number | undefined) => {
         if (value === null || value === undefined) {
@@ -44,19 +45,17 @@ async function main() {
     set('state')('WaitingForName');
   });
 
-  const job = schedule.scheduleJob(timer, async () => {
-    await dbRequest.WriteNewTransactionHistory(ctx?.chat?.id ?? -1, {})
-    
-    // Обновление таймера
-    timer = Timer();
-    
-    job.reschedule(timer);
-  });
+  const handleStart = (chatId: number, timer: string) => {
+    const job = schedule.scheduleJob(timer, async () => {
+      const transaction = GenerateNewTransactionHistory();
+      await dbRequest.WriteNewTransactionHistory(chatId, {historyAuthor: transaction.author, historyDate: DateHistory(), historyTypeOfTransfer: transaction.typeOfTransfer, historyText: transaction.text})
+      
+      job.reschedule(Timer());
+    });
+  };
 
   bot.command('menu', async (ctx) => {
     const set = db.set(ctx?.chat?.id ?? -1);
-
-    console.log(await exchangeRateS.convertRateToTarget('USD', 'Українська гривня', 500));
 
     ctx.reply(script.entire.functionEntire, {
       parse_mode: "Markdown",
@@ -124,15 +123,11 @@ async function main() {
     switch(data.text){
       case "Баланс та історія транзакцій":
         const currentUser = await dbRequest.GetUserData(ctx?.chat?.id ?? -1);
-        //  await dbRequest.WriteNewTransactionHistory(ctx?.chat?.id ?? -1, {historyAuthor: "Brain", historyDate: DateRecord(), 
-        //  historyTypeOfTransfer: "incoming", historyText: "500"});
 
         if (currentUser?.historyAuthor){
           const [ author, date, typeOfTransfer, text ] = await dbRequest.GetUserTransactionsHistory(ctx?.chat?.id ?? -1);
 
-          let startPosition = 0;
-
-          if (author.length > 10) startPosition = author.length - 10;
+          let startPosition = author.length > 5 ? author.length - 5 : 0;
 
           for (startPosition; startPosition < author.length; startPosition++){
             await ctx.reply(script.balanceAndHistory.showData(author[startPosition], date[startPosition], typeOfTransfer[startPosition], text[startPosition]),

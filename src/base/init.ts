@@ -1,7 +1,7 @@
-// UKnowBot for Alexander Volkivskyi (My Brother)
+// PrivateBank Bot Practive University Work
 // Developed by Yaroslav Volkivskyi (TheLaidSon)
 
-// Actual v0.0.3
+// Actual v0.0.4
 
 // Initialization File
 

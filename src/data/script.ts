@@ -41,7 +41,7 @@ const script = {
 
   balanceAndHistory: {
     showData: (author: string, date: string, type: string, text: string) => 
-    `🛍<b>${author}</b>\n\n<b>💸${type === 'outgoing' ? (text === 'fail' ? '' : '-') : '+'}${text === 'fail' ? "Недостатньо коштів для транзакції" : text}</b> uah.\n\n\n📅 ${date} 📅`,
+    `🛍<b>${author}</b>\n\n💸${type === 'outgoing' ? (text === 'fail' ? '' : '-') : '+'}${text === 'fail' ? "<b>Недостатньо коштів для транзакції</b>" : `<b>${text}</b> uah.`}\n\n\n📅 ${date} 📅`,
 
     showErrorToShowData: `У вас відсутні транзакції.`,
 

@@ -197,24 +197,22 @@ export default async function arch() {
 
     async WriteNewTransactionHistory(idUser: number, data: { historyAuthor: string, historyDate: string, historyTypeOfTransfer: string, historyText: string }){
       const user = await this.GetUserData(idUser),
-        historyAuthorDB = user!.historyAuthor !== '' ? user!.historyAuthor.toString() : false,
-        historyDateDB = user!.historyDate !== '' ? user!.historyDate.toString() : false,
-        historyTypeOfTransferDB = user!.historyTypeOfTransfer !== '' ? user!.historyTypeOfTransfer.toString() : false,
-        historyTextDB = user!.historyText !== '' ? user!.historyText.toString() : false;
+        historyAuthorDB = user!.historyAuthor === '' || user!.historyAuthor === undefined ? false : user!.historyAuthor.toString(),
+        historyDateDB = user!.historyDate === '' || user!.historyDate === undefined ? false : user!.historyDate.toString(),
+        historyTypeOfTransferDB = user!.historyTypeOfTransfer === '' || user!.historyTypeOfTransfer === undefined ? false : user!.historyTypeOfTransfer.toString(),
+        historyTextDB = user!.historyText === '' || user!.historyText === undefined ? false : user!.historyText.toString();
+
+      let result = 0;
 
       if (historyAuthorDB){
         const dataContain = historyAuthorDB.split(',');
+        dataContain.push(data.historyAuthor);
 
-        if (historyAuthorDB.indexOf(data.historyAuthor.toString()) === -1){
-          dataContain.push(data.historyAuthor);
-  
-          const updateObject = {$set : {
-            historyAuthor: dataContain.join(',')
-          }}
-  
-          await this.usersData.updateOne({_id: user!._id}, updateObject);
-        }
-        else return false;
+        const updateObject = {$set : {
+          historyAuthor: dataContain.join(',')
+        }}
+
+        await this.usersData.updateOne({_id: user!._id}, updateObject);
       }
       else{
         const updateObject = {$set : {
@@ -226,17 +224,13 @@ export default async function arch() {
 
       if (historyDateDB){
         const dataContain = historyDateDB.split(',');
+        dataContain.push(data.historyDate);
 
-        if (historyDateDB.indexOf(data.historyDate.toString()) === -1){
-          dataContain.push(data.historyAuthor);
-  
-          const updateObject = {$set : {
-            historyDate: dataContain.join(',')
-          }}
-  
-          await this.usersData.updateOne({_id: user!._id}, updateObject);
-        }
-        else return false;
+        const updateObject = {$set : {
+          historyDate: dataContain.join(',')
+        }}
+
+        await this.usersData.updateOne({_id: user!._id}, updateObject);
       }
       else{
         const updateObject = {$set : {
@@ -249,17 +243,17 @@ export default async function arch() {
       if (historyTypeOfTransferDB){
         if (data.historyTypeOfTransfer === 'incoming' || data.historyTypeOfTransfer === 'outgoing'){
           const dataContain = historyTypeOfTransferDB.split(',');
+          dataContain.push(data.historyTypeOfTransfer);
   
-          if (historyTypeOfTransferDB.indexOf(data.historyTypeOfTransfer.toString()) === -1){
-            dataContain.push(data.historyTypeOfTransfer);
-    
-            const updateObject = {$set : {
-              historyTypeOfTransfer: dataContain.join(',')
-            }}
-    
-            await this.usersData.updateOne({_id: user!._id}, updateObject);
-          }
-          else return false;
+          const updateObject = {$set : {
+            historyTypeOfTransfer: dataContain.join(',')
+          }}
+
+          if (data.historyTypeOfTransfer === "incoming") result = parseInt(user!.balance) + parseInt(data.historyText);
+          else result = parseInt(user!.balance) < parseInt(data.historyText) ? parseInt(user!.balance) : parseInt(user!.balance) - parseInt(data.historyText);
+  
+          await this.usersData.updateOne({_id: user!._id}, updateObject);
+          await this.ChangeCardBalance(idUser, result);
         }
         else{
           console.error('\n\n\n Error while processing code, uncorrect parameter received in WriteNewTransactionHistory() function. Use "incoming" or "outgoing".');
@@ -271,11 +265,12 @@ export default async function arch() {
           const updateObject = {$set : {
             historyTypeOfTransfer: data.historyTypeOfTransfer
           }}
+
+          if (data.historyTypeOfTransfer === "incoming") result = parseInt(user!.balance) + parseInt(data.historyText);
+          else result = parseInt(user!.balance) < parseInt(data.historyText) ? parseInt(user!.balance) : parseInt(user!.balance) - parseInt(data.historyText);
   
           await this.usersData.updateOne({_id: user?._id}, updateObject);
-          await this.ChangeCardBalance(idUser, data.historyTypeOfTransfer === "incoming" ? 
-          parseInt(user!.balance) + parseInt(data.historyText) : parseInt(user!.balance) < parseInt(data.historyText) ?
-          (parseInt(user!.balance) - parseInt(data.historyText)) : parseInt(user!.balance));
+          await this.ChangeCardBalance(idUser, result);
         }
         else{
           console.error('\n\n\n Error while processing code, uncorrect parameter received in WriteNewTransactionHistory() function. Use "incoming" or "outgoing".');
@@ -285,18 +280,14 @@ export default async function arch() {
 
       if (historyTextDB){
         const dataContain = historyTextDB.split(',');
+        dataContain.push(data.historyTypeOfTransfer === 'outgoing' && parseInt(user!.balance) < parseInt(data.historyText) ? 
+        "fail" : data.historyText);
 
-        if (historyTextDB.indexOf(data.historyText.toString()) === -1){
-          dataContain.push(data.historyTypeOfTransfer === 'outgoing' && parseInt(user!.balance) < parseInt(data.historyText) ? 
-          "fail" : data.historyText);
-  
-          const updateObject = {$set : {
-            historyText: dataContain.join(',')
-          }}
-  
-          await this.usersData.updateOne({_id: user!._id}, updateObject);
-        }
-        else return false;
+        const updateObject = {$set : {
+          historyText: dataContain.join(',')
+        }}
+
+        await this.usersData.updateOne({_id: user!._id}, updateObject);
       }
       else{
         const updateObject = {$set : {

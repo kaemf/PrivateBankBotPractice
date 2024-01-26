@@ -9,4 +9,4 @@ export function about(version: string) {
 <a href="https://docs.google.com/document/d/1QLJbMIqZCfiYDjhAfQIDoy2rbIV4nEf2ZnZm0dmZ9yU/edit?usp=sharing"><b>Список змін</b></a>`
 }
 
-export const botVersion = '0.0.3';
+export const botVersion = '0.0.4';
