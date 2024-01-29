@@ -13,3 +13,4 @@ export type UserScriptState =
   | "RespondExchangeAndReturn"
   | "RespondNumberAndRequestCountry"
   | "RespondCoutryAndProcess"
+  | "Q&AHandler"

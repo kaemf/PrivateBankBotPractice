@@ -20,6 +20,7 @@ import DateRecord, { DateHistory } from "./data/date";
 import script from "./data/script";
 import { Markup } from "telegraf";
 import GenerateNewTransactionHistory from "./data/generateNewTransactionHistory";
+import { CheckQARegular, q_a, q_aAnswers } from "./base/functions/qa";
 
 async function main() {
   const [ onTextMessage, onContactMessage, , bot, db, dbRequest ] = await arch();
@@ -164,6 +165,16 @@ async function main() {
             keyboard: keyboards.menu(),
           },
         })
+        break;
+
+      case "Поширені питання":
+        ctx.reply(script.qA.chooseQuestion, {
+          reply_markup: {
+            one_time_keyboard: true,
+            keyboard: q_a
+          }
+        })
+        await set('state')('Q&AHandler');
         break;
 
       default:
@@ -567,6 +578,35 @@ async function main() {
         reply_markup: {
           one_time_keyboard: true,
           keyboard: keyboards.countryRateMenu()
+        }
+      })
+    }
+  })
+
+  onTextMessage('Q&AHandler', async(ctx, user, set, data) => {
+    if (CheckQARegular(data.text)){
+      ctx.reply(q_aAnswers[data.text], {
+        reply_markup: {
+          one_time_keyboard: true,
+          keyboard: q_a
+        }
+      })
+    }
+    else if (data.text === 'В МЕНЮ'){
+      ctx.reply(script.entire.functionEntire, {
+        parse_mode: "Markdown",
+        reply_markup: {
+          one_time_keyboard: true,
+          keyboard: keyboards.menu(),
+        },
+      });
+      await set('state')('FunctionRoot');
+    }
+    else{
+      ctx.reply(script.error.buttonError, {
+        reply_markup: {
+          one_time_keyboard: true,
+          keyboard: q_a
         }
       })
     }

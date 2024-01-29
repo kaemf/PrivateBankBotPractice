@@ -46,6 +46,10 @@ const script = {
     showErrorToShowData: `У вас відсутні транзакції.`,
 
     showActualCardBalance: (balance: number) => `Баланс вашої картки - ${balance} uah.`
+  },
+
+  qA: {
+    chooseQuestion: `Чудово! Яке питання вас цікавить?`
   }
 
 }
