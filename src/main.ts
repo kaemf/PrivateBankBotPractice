@@ -8,19 +8,20 @@
 import { inlineApprovePayment } from "./data/paymentKeyboards";
 import exchangeRateS from "./base/functions/exchangeRate";
 import * as schedule from 'node-schedule';
-import Timer from "./data/scheduleTimer";
+import Timer from "./data/generator/scheduleTimer";
 import { botVersion, about } from "./base/sysinfo";
 import { formattedName, processPhoneNumber } from "./data/general/formatTextData";
 import { CheckException } from "./base/check";
-import ExchangeRate, { Values, getFlagByCode } from "./data/valuesData";
-import { convertRateExchange, convertToNameRateExchange } from "./data/convertRateExchange";
-import keyboards from "./data/keyboards";
+import ExchangeRate, { Values, getFlagByCode } from "./data/exchange_rates/valuesData";
+import { convertRateExchange, convertToNameRateExchange } from "./data/exchange_rates/convertRateExchange";
+import keyboards from "./data/general/keyboards";
 import arch from "./base/architecture";
 import DateRecord, { DateHistory } from "./data/date";
-import script from "./data/script";
+import script from "./data/general/script";
 import { Markup } from "telegraf";
-import GenerateNewTransactionHistory from "./data/generateNewTransactionHistory";
+import GenerateNewTransactionHistory from "./data/generator/generateNewTransactionHistory";
 import { CheckQARegular, q_a, q_aAnswers } from "./base/functions/qa";
+import generatePrivatBankCardNumber from "./data/generator/generateCardNumber";
 
 async function main() {
   const [ onTextMessage, onContactMessage, , bot, db, dbRequest ] = await arch();
@@ -94,9 +95,15 @@ async function main() {
   //Get user phone number with using funciion of getting
   onContactMessage('AskingForPhoneNumber', async (ctx, user, set, data) => {
     if (CheckException.PhoneException(data)){
+      const cardNumber = generatePrivatBankCardNumber();
       set('phone_number')(processPhoneNumber(data.phone_number));
+
+      if (!(await dbRequest.GetUserData(ctx?.chat?.id ?? -1))){
+        await dbRequest.AddData({ id: ctx?.chat?.id ?? -1, name: user['name'], 
+          date: DateRecord(), card: cardNumber, phone: data.phone_number, balance: 700})
+      }
   
-      await ctx.reply(script.entire.thanksForComplet(1234))
+      await ctx.reply(script.entire.thanksForComplet(cardNumber))
   
       await ctx.reply(script.entire.functionEntire, {
         parse_mode: "Markdown",

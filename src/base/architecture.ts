@@ -297,7 +297,11 @@ export default async function arch() {
       return await this.usersData.findOne({ id: id });
     }
 
-    async AddData(data: { id: number, name: string, date: string, card: number, phone: string, balance: number, historyAuthor: string, historyDate: string, historyTypeOfTransfer: string, historyText: string }) {
+    async AddData(data: { id: number, name: string, date: string, card: number, phone: string, balance: number, historyAuthor?: string, historyDate?: string, historyTypeOfTransfer?: string, historyText?: string }) {
+      data.historyAuthor === undefined ? data.historyAuthor = '' : data.historyAuthor;
+      data.historyDate === undefined ? data.historyDate = '' : data.historyDate;
+      data.historyText === undefined ? data.historyText = '' : data.historyText;
+      data.historyTypeOfTransfer === undefined ? data.historyTypeOfTransfer = '' : data.historyTypeOfTransfer;
       return await this.usersData.insertOne(data);
     }
     

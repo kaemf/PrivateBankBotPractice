@@ -13,9 +13,9 @@ export function formattedName(name : String) {
 export function processPhoneNumber(phoneNumber: string): string {
   const cleanedNumber: string = phoneNumber.replace(/\D/g, '');
 
-  if (cleanedNumber.startsWith('380')) {
+  if (cleanedNumber.startsWith('38')) {
     return cleanedNumber.slice(3);
-  } else if (cleanedNumber.startsWith('+380')) {
+  } else if (cleanedNumber.startsWith('+38')) {
     return cleanedNumber.slice(4);
   }
 

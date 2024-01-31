@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { convertRateExchange } from '../../data/convertRateExchange';
+import { convertRateExchange } from '../../data/exchange_rates/convertRateExchange';
 
 class ExchangeRates{
     private async getExchangeRates(current: string){

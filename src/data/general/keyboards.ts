@@ -1,4 +1,4 @@
-import { getAllKeys } from "./convertRateExchange"
+import { getAllKeys } from "../exchange_rates/convertRateExchange"
 
 class Keyboard{
     menu(){
