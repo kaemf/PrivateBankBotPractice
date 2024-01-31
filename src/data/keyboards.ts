@@ -3,10 +3,6 @@ import { getAllKeys } from "./convertRateExchange"
 class Keyboard{
     menu(){
         return [
-          // Баланс і історія транзакцій
-          // Конвертація валют
-          // Підтримка за доп працівника
-          // Калькулятор валют (перегляд курса валют)
             [
               {
                 text: "Баланс та історія транзакцій",
@@ -107,7 +103,7 @@ class Keyboard{
     countryRateMenu(){
       return getAllKeys().map((el: string) => {
         return [{ text: el }];
-      }).filter(buttons => buttons !== null);
+      });
     }
 }
 
