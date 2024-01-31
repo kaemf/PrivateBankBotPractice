@@ -14,3 +14,5 @@ export type UserScriptState =
   | "RespondNumberAndRequestCountry"
   | "RespondCoutryAndProcess"
   | "Q&AHandler"
+  | "SettingsHandler"
+  | "ChangingMainRateAndReturn"

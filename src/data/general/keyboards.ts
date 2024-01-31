@@ -18,6 +18,10 @@ class Keyboard{
               {
                 text: "Поширені питання"
               }
+            ],[
+              {
+                text: "Налаштування"
+              }
             ]
         ]
     }
@@ -104,6 +108,20 @@ class Keyboard{
       return getAllKeys().map((el: string) => {
         return [{ text: el }];
       });
+    }
+
+    settingsMenu(){
+      return [
+        [
+          {
+            text: "Основна валюта"
+          }
+        ],[
+          {
+            text: "В МЕНЮ"
+          }
+        ]
+      ]
     }
 }
 

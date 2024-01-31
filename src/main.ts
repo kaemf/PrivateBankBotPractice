@@ -68,6 +68,19 @@ async function main() {
     });
     await set('state')('FunctionRoot');
   })
+
+  bot.command('settings', async (ctx) => {
+    const set = db.set(ctx?.chat?.id ?? -1);
+
+    ctx.reply(script.settings.open, {
+      reply_markup: {
+        one_time_keyboard: true,
+        keyboard: keyboards.settingsMenu()
+      }
+    })
+
+    await set('state')('SettingsHandler');
+  })
   
   //Get real user name and root to menu
   onTextMessage('WaitingForName', async (ctx, user, set, data) => {
@@ -100,7 +113,7 @@ async function main() {
 
       if (!(await dbRequest.GetUserData(ctx?.chat?.id ?? -1))){
         await dbRequest.AddData({ id: ctx?.chat?.id ?? -1, name: user['name'], 
-          date: DateRecord(), card: cardNumber, phone: data.phone_number, balance: 700})
+          date: DateRecord(), card: cardNumber, phone: data.phone_number, balance: 700});
       }
   
       await ctx.reply(script.entire.thanksForComplet(cardNumber))
@@ -184,6 +197,17 @@ async function main() {
         await set('state')('Q&AHandler');
         break;
 
+      case "Налаштування":
+        ctx.reply(script.settings.open, {
+          reply_markup: {
+            one_time_keyboard: true,
+            keyboard: keyboards.settingsMenu()
+          }
+        })
+    
+        await set('state')('SettingsHandler');
+        break;
+
       default:
         await ctx.reply(script.error.errorExceptionFunction, {
           parse_mode: "Markdown",
@@ -203,7 +227,7 @@ async function main() {
         let response = '';
         for (let i = 0; i < 10; i++){
           response += `${script.values.valueData(`${ExchangeRate[i].flag} ${convertToNameRateExchange(ExchangeRate[i].code)}`, 
-          await exchangeRateS.getSpecificRates('UAH', convertToNameRateExchange(ExchangeRate[i].code)), 'UAH', i)}\n`
+          await exchangeRateS.getSpecificRates(user['activeValue'] ?? "UAH", convertToNameRateExchange(ExchangeRate[i].code)), user['activeValue'] ?? "UAH", i)}\n`
         }
 
         ctx.deleteMessage(messageToDelete.message_id);
@@ -468,7 +492,7 @@ async function main() {
 
   onTextMessage('RespondExchangeAndReturn', async(ctx, user, set, data) => {
     if (CheckException.TextException(data)){
-      const input = await exchangeRateS.getSpecificRates("UAH", data.text);
+      const input = await exchangeRateS.getSpecificRates(user['activeValue'] ?? "UAH", data.text);
 
       if (input){
         ctx.reply(script.values.valueData(`${getFlagByCode(convertRateExchange[data.text]) ? getFlagByCode(convertRateExchange[data.text]) : "🏳"} ${data.text}`, 
@@ -558,7 +582,7 @@ async function main() {
 
   onTextMessage('RespondCoutryAndProcess', async(ctx, user, set, data) => {
     if (CheckException.TextException(data)){
-      const input = await exchangeRateS.getSpecificRates("UAH", data.text);
+      const input = await exchangeRateS.getSpecificRates(user['activeValue'] ?? "UAH", data.text);
       if (input){
         ctx.reply(script.values.customValueData(`${getFlagByCode(convertRateExchange[data.text])} ${data.text}`, user['valueInputedForConvert'], 
         parseInt(user['valueInputedForConvert']) * input, convertRateExchange[data.text]), {
@@ -614,6 +638,75 @@ async function main() {
         reply_markup: {
           one_time_keyboard: true,
           keyboard: q_a
+        }
+      })
+    }
+  })
+
+  onTextMessage('SettingsHandler', async(ctx, user, set, data) => {
+    switch(data.text){
+      case "Основна валюта":
+        ctx.reply(script.settings.values, {
+          reply_markup: {
+            one_time_keyboard: true,
+            keyboard: keyboards.countryRateMenu()
+          }
+        })
+
+        await set('state')('ChangingMainRateAndReturn');
+        break;
+
+      case "В МЕНЮ":
+        await ctx.reply(script.entire.functionEntire, {
+          parse_mode: "Markdown",
+          reply_markup: {
+            one_time_keyboard: true,
+            keyboard: keyboards.menu(),
+          },
+        });
+
+        await set('state')('FunctionRoot');
+        break;
+
+      default:
+        ctx.reply(script.error.buttonError, {
+          reply_markup: {
+            one_time_keyboard: true,
+            keyboard: keyboards.settingsMenu()
+          }
+        })
+        break;
+    }
+  })
+
+  onTextMessage('ChangingMainRateAndReturn', async(ctx, user, set, data) => {
+    if (CheckException.TextException(data)){
+      if (await exchangeRateS.getSpecificRates(convertRateExchange[data.text], data.text)){
+        await set('activeValue')(convertRateExchange[data.text]);
+        ctx.reply(script.settings.changed(data.text), {
+          parse_mode: "HTML",
+          reply_markup: {
+            one_time_keyboard: true,
+            keyboard: keyboards.endRootMenu()
+          }
+        });
+
+        await set('state')('EndFunctionManager');
+      }
+      else{
+        ctx.reply(script.error.buttonError, {
+          reply_markup: {
+            one_time_keyboard: true,
+            keyboard: keyboards.countryRateMenu()
+          }
+        })
+      }
+    }
+    else{
+      ctx.reply(script.error.buttonError, {
+        reply_markup: {
+          one_time_keyboard: true,
+          keyboard: keyboards.countryRateMenu()
         }
       })
     }
