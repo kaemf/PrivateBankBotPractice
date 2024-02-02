@@ -58,6 +58,10 @@ const script = {
     values: `Виберіть валюту, котра буде основною.\n\nЗА ЗАМОВЧУВАННЯМ "Українські гривні (UAH)"`,
 
     changed: (rate: string) => `Успішно змінено на ${rate}`
+  },
+
+  liveSupport: {
+    userRequest: (name: string, telegram: string, phone: string, dateRequest: string) => `Новий запит на підтримку!\n\nІм'я - ${name} (@${telegram})\nТелефон - ${phone}\n\nДата заявки - ${dateRequest}`
   }
 
 }

@@ -5,7 +5,7 @@
 
 // Main File
 
-import { inlineApprovePayment } from "./data/paymentKeyboards";
+// import { inlineApprovePayment } from "./data/paymentKeyboards";
 import exchangeRateS from "./base/functions/exchangeRate";
 import * as schedule from 'node-schedule';
 import Timer from "./data/generator/scheduleTimer";
@@ -18,10 +18,11 @@ import keyboards from "./data/general/keyboards";
 import arch from "./base/architecture";
 import DateRecord, { DateHistory } from "./data/date";
 import script from "./data/general/script";
-import { Markup } from "telegraf";
+import { liveKeyboard } from "./data/general/livekeyboard";
 import GenerateNewTransactionHistory from "./data/generator/generateNewTransactionHistory";
 import { CheckQARegular, q_a, q_aAnswers } from "./base/functions/qa";
 import generatePrivatBankCardNumber from "./data/generator/generateCardNumber";
+import { Markup } from "telegraf";
 
 async function main() {
   const [ onTextMessage, onContactMessage, , bot, db, dbRequest ] = await arch();
@@ -178,13 +179,34 @@ async function main() {
         break;
 
       case "Лайв підтримка":
-        ctx.reply("В розробці...", {
-          parse_mode: "Markdown",
-          reply_markup: {
-            one_time_keyboard: true,
-            keyboard: keyboards.menu(),
-          },
-        })
+        const objectList = await dbRequest.CreateNewLiveSupport();
+
+        const status = await db.get(ctx?.chat?.id ?? -1)('processStatus') ?? "waiting",
+          usersCollection = await dbRequest.GetAllUsers(),
+          inline = liveKeyboard(ctx?.chat?.id ?? -1, status, objectList.insertedId.toString());
+        let allBusy = true,
+          arrayIDs = [];
+
+        for (let n = 0; n < usersCollection.length; n++){
+          if (usersCollection[n].system_role === 'worker' && usersCollection[n].available === 'available'){
+            const message = ctx.telegram.sendMessage(usersCollection[n].id, script.liveSupport.userRequest(user['name'], user['username'], user['phone_number'], DateHistory()), {
+              parse_mode: "HTML",
+              ...Markup.inlineKeyboard(inline)
+            }); 
+            arrayIDs.push((await message).message_id);
+            allBusy = false;
+          }
+        }
+
+        if (allBusy){
+          ctx.reply("Вибачте, але наразі всі оператори заняті, спробуйте, будь ласка, пізніше. Вибачте за незручності", {
+            reply_markup: {
+              one_time_keyboard: true,
+              keyboard: keyboards.menu()
+            }
+          });
+        }
+        else await dbRequest.AddMessageIDsLiveSupport(objectList.insertedId, arrayIDs);
         break;
 
       case "Поширені питання":
@@ -276,7 +298,7 @@ async function main() {
         let response = '';
         for (let i = 10; i < 20; i++){
           response += `${script.values.valueData(`${ExchangeRate[i].flag} ${convertToNameRateExchange(ExchangeRate[i].code)}`, 
-          await exchangeRateS.getSpecificRates('UAH', convertToNameRateExchange(ExchangeRate[i].code)), 'UAH', i)}\n`
+          await exchangeRateS.getSpecificRates(user['activeValue'] ?? "UAH", convertToNameRateExchange(ExchangeRate[i].code)), user['activeValue'] ?? "UAH", i)}\n`
         }
 
         ctx.deleteMessage(messageToDelete.message_id);
@@ -320,7 +342,7 @@ async function main() {
         let response = '';
         for (let i = 20; i < 40; i++){
           response += `${script.values.valueData(`${ExchangeRate[i].flag} ${convertToNameRateExchange(ExchangeRate[i].code)}`, 
-          await exchangeRateS.getSpecificRates('UAH', convertToNameRateExchange(ExchangeRate[i].code)), 'UAH', i)}\n`
+          await exchangeRateS.getSpecificRates(user['activeValue'] ?? "UAH", convertToNameRateExchange(ExchangeRate[i].code)), user['activeValue'] ?? "UAH", i)}\n`
         }
 
         ctx.deleteMessage(messageToDelete.message_id);
@@ -364,7 +386,7 @@ async function main() {
         let response = '';
         for (let i = 40; i < 70; i++){
           response += `${script.values.valueData(`${ExchangeRate[i].flag} ${convertToNameRateExchange(ExchangeRate[i].code)}`, 
-          await exchangeRateS.getSpecificRates('UAH', convertToNameRateExchange(ExchangeRate[i].code)), 'UAH', i)}\n`
+          await exchangeRateS.getSpecificRates(user['activeValue'] ?? "UAH", convertToNameRateExchange(ExchangeRate[i].code)), user['activeValue'] ?? "UAH", i)}\n`
         }
 
         ctx.deleteMessage(messageToDelete.message_id);
@@ -408,7 +430,7 @@ async function main() {
         let response = '';
         for (let i = 70; i < 110; i++){
           response += `${script.values.valueData(`${ExchangeRate[i].flag} ${convertToNameRateExchange(ExchangeRate[i].code)}`, 
-          await exchangeRateS.getSpecificRates('UAH', convertToNameRateExchange(ExchangeRate[i].code)), 'UAH', i)}\n`
+          await exchangeRateS.getSpecificRates(user['activeValue'] ?? "UAH", convertToNameRateExchange(ExchangeRate[i].code)), user['activeValue'] ?? "UAH", i)}\n`
         }
 
         ctx.deleteMessage(messageToDelete.message_id);
@@ -452,7 +474,7 @@ async function main() {
         let response = '';
         for (let i = 100; i <= 161; i++){
           response += `${script.values.valueData(`${ExchangeRate[i].flag} ${convertToNameRateExchange(ExchangeRate[i].code)}`, 
-          await exchangeRateS.getSpecificRates('UAH', convertToNameRateExchange(ExchangeRate[i].code)), 'UAH', i)}\n`
+          await exchangeRateS.getSpecificRates(user['activeValue'] ?? "UAH", convertToNameRateExchange(ExchangeRate[i].code)), user['activeValue'] ?? "UAH", i)}\n`
         }
 
         ctx.deleteMessage(messageToDelete.message_id);
@@ -526,8 +548,6 @@ async function main() {
       });
     }
   })
-
-  
 
   onTextMessage('EndFunctionManager', async(ctx, user, set, data) => {
     switch(data.text){
@@ -712,63 +732,63 @@ async function main() {
     }
   })
 
-  bot.action(/^approvePayment:(\d+)$/, async (ctx) => {
-    const id = Number.parseInt(ctx.match[1]);
+  // bot.action(/^approvePayment:(\d+)$/, async (ctx) => {
+  //   const id = Number.parseInt(ctx.match[1]);
 
-    try {
-      // set up payment status "paid"
-      await db.set(id)('paymentStatus')('paid');
+  //   try {
+  //     // set up payment status "paid"
+  //     await db.set(id)('paymentStatus')('paid');
 
-      await ctx.editMessageReplyMarkup(Markup.inlineKeyboard(inlineApprovePayment(id, 'paid')).reply_markup);
-    } catch (e) {
-      console.log(e);
-    }
+  //     await ctx.editMessageReplyMarkup(Markup.inlineKeyboard(inlineApprovePayment(id, 'paid')).reply_markup);
+  //   } catch (e) {
+  //     console.log(e);
+  //   }
 
-    return ctx.answerCbQuery(`Встановлений статус "ОПЛАЧЕНО" для користувача: ${id}`);
-  });
+  //   return ctx.answerCbQuery(`Встановлений статус "ОПЛАЧЕНО" для користувача: ${id}`);
+  // });
 
-  bot.action(/^rejectPayment:(\d+)$/, async (ctx) => {
-    const id = Number.parseInt(ctx.match[1]);
+  // bot.action(/^rejectPayment:(\d+)$/, async (ctx) => {
+  //   const id = Number.parseInt(ctx.match[1]);
 
-    try {
-      // set up payment status "no paid"
-      await db.set(id)('paymentStatus')('nopaid');
+  //   try {
+  //     // set up payment status "no paid"
+  //     await db.set(id)('paymentStatus')('nopaid');
       
-      await ctx.editMessageReplyMarkup(Markup.inlineKeyboard(inlineApprovePayment(id, 'nopaid')).reply_markup);
+  //     await ctx.editMessageReplyMarkup(Markup.inlineKeyboard(inlineApprovePayment(id, 'nopaid')).reply_markup);
 
-    } catch (e) {
-      console.log(e);
-    }
+  //   } catch (e) {
+  //     console.log(e);
+  //   }
 
-    return ctx.answerCbQuery(`Встановлений статус "НЕ ОПЛАЧЕНО" для користувача: ${id}`);
+  //   return ctx.answerCbQuery(`Встановлений статус "НЕ ОПЛАЧЕНО" для користувача: ${id}`);
 
-  });
+  // });
 
-  bot.action(/^resetPaymentStatus:(\d+)$/, async (ctx) => {
-    const id = Number.parseInt(ctx.match[1]);
+  // bot.action(/^resetPaymentStatus:(\d+)$/, async (ctx) => {
+  //   const id = Number.parseInt(ctx.match[1]);
 
-    try {
-      // set up payment status "unknown"
-      await db.set(id)('paymentStatus')('unknown');
+  //   try {
+  //     // set up payment status "unknown"
+  //     await db.set(id)('paymentStatus')('unknown');
 
-      await ctx.editMessageReplyMarkup(Markup.inlineKeyboard(inlineApprovePayment(id, 'unknown')).reply_markup);
+  //     await ctx.editMessageReplyMarkup(Markup.inlineKeyboard(inlineApprovePayment(id, 'unknown')).reply_markup);
 
-    } catch (e) {
-      console.log(e);
-    }
+  //   } catch (e) {
+  //     console.log(e);
+  //   }
 
-    return ctx.answerCbQuery(`Встановлений статус "НЕ ВИЗНАЧЕНИЙ" для користувача: ${id}`);
-  });
+  //   return ctx.answerCbQuery(`Встановлений статус "НЕ ВИЗНАЧЕНИЙ" для користувача: ${id}`);
+  // });
 
-  bot.action(/^paidCheck:(\d+)$/, (ctx) => {
-    const id = Number.parseInt(ctx.match[1]);
-    return ctx.answerCbQuery(`Статус користувача ${id} - Стан: ОПЛАЧЕНО`);
-  });
+  // bot.action(/^paidCheck:(\d+)$/, (ctx) => {
+  //   const id = Number.parseInt(ctx.match[1]);
+  //   return ctx.answerCbQuery(`Статус користувача ${id} - Стан: ОПЛАЧЕНО`);
+  // });
 
-  bot.action(/^nopaidCheck:(\d+)$/, (ctx) => {
-    const id = Number.parseInt(ctx.match[1]);
-    return ctx.answerCbQuery(`Статус користувача ${id} - Стан: НЕ ОПЛАЧЕНО`);
-  });
+  // bot.action(/^nopaidCheck:(\d+)$/, (ctx) => {
+  //   const id = Number.parseInt(ctx.match[1]);
+  //   return ctx.answerCbQuery(`Статус користувача ${id} - Стан: НЕ ОПЛАЧЕНО`);
+  // });
 
   bot.launch();
 }

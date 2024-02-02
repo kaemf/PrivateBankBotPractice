@@ -2,6 +2,7 @@ import init from './init'
 import { Context } from "telegraf";
 import { Update } from "telegraf/typings/core/types/typegram";
 import { UserScriptState } from "../data/UserScriptState";
+import { ObjectId } from 'mongodb';
 type ActionType<T> = (ctx: Context<Update>, user: {[x: string]: string}, set: (key: string) => (value: string) => Promise<number>, data: T) => void;
 
 export default async function arch() {
@@ -292,9 +293,14 @@ export default async function arch() {
 
   class DBRequest{
     private usersData = bankdb.db('PrivateBankPractice').collection('userCollection');
+    private liveSupport = bankdb.db('PrivateBankPractice').collection('liveSupportList');
 
     async GetUserData(id: number) {
       return await this.usersData.findOne({ id: id });
+    }
+
+    async GetAllUsers(){
+      return await this.usersData.find({}).toArray();
     }
 
     async AddData(data: { id: number, name: string, date: string, card: number, phone: string, balance: number, historyAuthor?: string, historyDate?: string, historyTypeOfTransfer?: string, historyText?: string }) {
@@ -438,6 +444,20 @@ export default async function arch() {
       if (historyTextDB) historyTextDBProcessed = historyTextDB.split(',');
 
       return [ historyAuthorDBProcessed, historyDateDBProcessed, historyTypeOfTransferDBProcessed, historyTextDBProcessed ] as const;
+    }
+
+    async CreateNewLiveSupport(){
+      return await this.liveSupport.insertOne({messageIDs: []});
+    }
+
+    async AddMessageIDsLiveSupport(oid: ObjectId, messageIDs: number[]){
+      await this.liveSupport.updateOne({_id: oid}, {$set: {messageIDs: messageIDs}})
+    }
+
+    async GetMessageIDsLiveSupport(oid: ObjectId){
+      const object = await this.liveSupport.findOne({ _id: oid });
+
+      return object ? object.messageIDs : false;
     }
   }
 
