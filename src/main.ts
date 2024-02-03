@@ -179,9 +179,8 @@ async function main() {
         break;
 
       case "Лайв підтримка":
-        const objectList = await dbRequest.CreateNewLiveSupport();
-
-        const status = await db.get(ctx?.chat?.id ?? -1)('processStatus') ?? "waiting",
+        const objectList = await dbRequest.CreateNewLiveSupport(),
+          status = await db.get(ctx?.chat?.id ?? -1)('processStatus') ?? "waiting",
           usersCollection = await dbRequest.GetAllUsers(),
           inline = liveKeyboard(ctx?.chat?.id ?? -1, status, objectList.insertedId.toString());
         let allBusy = true,
@@ -206,7 +205,10 @@ async function main() {
             }
           });
         }
-        else await dbRequest.AddMessageIDsLiveSupport(objectList.insertedId, arrayIDs);
+        else{
+          await dbRequest.AddMessageIDsLiveSupport(objectList.insertedId, arrayIDs);
+          await ctx.reply(script.liveSupport.userRespond);
+        }
         break;
 
       case "Поширені питання":

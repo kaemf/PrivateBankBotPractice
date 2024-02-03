@@ -61,7 +61,8 @@ const script = {
   },
 
   liveSupport: {
-    userRequest: (name: string, telegram: string, phone: string, dateRequest: string) => `Новий запит на підтримку!\n\nІм'я - ${name} (@${telegram})\nТелефон - ${phone}\n\nДата заявки - ${dateRequest}`
+    userRequest: (name: string, telegram: string, phone: string, dateRequest: string) => `Новий запит на підтримку!\n\nІм'я - ${name} (@${telegram})\nТелефон - ${phone}\n\nДата заявки - ${dateRequest}`,
+    userRespond: `Ваш запит прийнято, очікуйте на оператора`
   }
 
 }

@@ -123,6 +123,16 @@ class Keyboard{
         ]
       ]
     }
+
+    liveSupportProbablyCancel(){
+      return [
+        [
+          {
+            text: "ВІДМІНА"
+          }
+        ]
+      ]
+    }
 }
 
 const keyboards = new Keyboard();

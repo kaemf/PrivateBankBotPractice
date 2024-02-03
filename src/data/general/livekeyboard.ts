@@ -6,35 +6,35 @@ export const liveKeyboard = (id: number, processStatus: string, oid: string): Hi
         case "waiting":
             return [
                 [
-                    Markup.button.callback("✔ Прийняти", `approvePayment:${id},${oid}`)
+                    Markup.button.callback("✔ Прийняти", `acceptSupport:${id},${oid}`)
                 ]
             ];
             
         case "accepted":
             return [
                 [
-                    Markup.button.callback("🟢 В процесі", `approvePayment:${id}`)
+                    Markup.button.callback("🟢 В процесі", `acceptedCheck:${id}`)
                 ]
             ];
 
         case "busy":
             return [
                 [
-                    Markup.button.callback("🔴 Прийнято іншим оператором", `nopaidCheck:${id}`)
+                    Markup.button.callback("🔴 Прийнято іншим оператором", `busyCheck:${id}`)
                 ]
             ];
 
         case "declined":
             return [
                 [
-                    Markup.button.callback("❌ Канал закритий", `nopaidCheck:${id}`)
+                    Markup.button.callback("❌ Канал закритий", `declinedCheck:${id}`)
                 ]
             ];
 
         default:
             return [
                 [
-                    Markup.button.callback("??_Помилка_створення_кнопки??", ``)
+                    Markup.button.callback("??_Помилка_створення_кнопки_??", `errorCheck`)
                 ]
             ];
     }
