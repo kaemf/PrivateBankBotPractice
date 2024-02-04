@@ -738,6 +738,13 @@ async function main() {
 
   onTextMessage('UserLiveSupportHandler', async(ctx, user, set, data) => {
     if (data.text === 'ВІДМІНА'){
+      const object = new ObjectId(user['userObjectCloseLiveSupport']),
+        [ messages, chats ] = await dbRequest.GetMessageIDsLiveSupport(object);
+
+      for(let n = 0; n < messages.length; n++){
+        await ctx.telegram.editMessageReplyMarkup(chats[n], messages[n], undefined, Markup.inlineKeyboard(liveKeyboard(ctx?.chat?.id ?? -1, 'declined', user['userObjectCloseLiveSupport'])).reply_markup)
+      }
+
       ctx.reply('Канал успішно закрито, сподіваємося ваше питання було вирішено!', {
         reply_markup: {
           one_time_keyboard: true,
@@ -752,6 +759,7 @@ async function main() {
         }
       })
 
+      await db.set(parseInt(user['activeHelperLiveSupport']))('state')('EndFunctionManager')
       await set('state')('EndFunctionManager');
     }
     else{
@@ -766,6 +774,13 @@ async function main() {
 
   onTextMessage('OperatorLiveSupportHandler', async(ctx, user, set, data) => {
     if (data.text === 'ВІДМІНА'){
+      const object = new ObjectId(user['operatorObjectCloseLiveSupport']),
+        [ messages, chats ] = await dbRequest.GetMessageIDsLiveSupport(object);
+
+      for(let n = 0; n < messages.length; n++){
+        await ctx.telegram.editMessageReplyMarkup(chats[n], messages[n], undefined, Markup.inlineKeyboard(liveKeyboard(ctx?.chat?.id ?? -1, 'declined', user['operatorObjectCloseLiveSupport'])).reply_markup)
+      }
+
       ctx.reply('Прекрасно, тепер можете відпочивати', {
         reply_markup: {
           one_time_keyboard: true,
@@ -776,10 +791,11 @@ async function main() {
       ctx.telegram.sendMessage(user['activeUserLiveSupport'], "Оператор закрив канал, сподіваємося ваше питання було вирішено.", {
         reply_markup: {
           one_time_keyboard: true,
-          keyboard: keyboards.liveSupportProbablyCancel()
+          keyboard: keyboards.endRootMenu()
         }
       })
 
+      await db.set(parseInt(user['activeUserLiveSupport']))('state')('EndFunctionManager')
       await set('state')('EndFunctionManager');
     }
     else{
@@ -803,6 +819,8 @@ async function main() {
           await ctx.editMessageReplyMarkup(Markup.inlineKeyboard(liveKeyboard(id, 'accepted', ctx.match[2])).reply_markup);
           operator = await db.get(chats[n])('name');
           await db.set(id)('activeHelperLiveSupport')(chats[n]);
+          await db.set(id)('operatorObjectCloseLiveSupport')(ctx.match[2]);
+          await db.set(chats[n])('userObjectCloseLiveSupport')(ctx.match[2]);
           await db.set(chats[n])('activeUserLiveSupport')(id.toString());
           await db.set(chats[n])('state')('OperatorLiveSupportHandler');
           await db.set(id)('state')('UserLiveSupportHandler');

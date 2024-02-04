@@ -457,6 +457,9 @@ export default async function arch() {
     async GetMessageIDsLiveSupport(oid: ObjectId){
       const object = await this.liveSupport.findOne({ _id: oid });
 
+      console.log(oid);
+      
+
       return [ object!.messageIDs, object!.chatIDs];
     }
   }
