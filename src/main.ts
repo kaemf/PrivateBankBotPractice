@@ -738,8 +738,7 @@ async function main() {
 
   onTextMessage('UserLiveSupportHandler', async(ctx, user, set, data) => {
     if (data.text === 'ВІДМІНА'){
-      const object = new ObjectId(user['userObjectCloseLiveSupport']),
-        [ messages, chats ] = await dbRequest.GetMessageIDsLiveSupport(object);
+      const [ messages, chats ] = await dbRequest.GetMessageIDsLiveSupport(new ObjectId(user['userObjectCloseLiveSupport']));
 
       for(let n = 0; n < messages.length; n++){
         await ctx.telegram.editMessageReplyMarkup(chats[n], messages[n], undefined, Markup.inlineKeyboard(liveKeyboard(ctx?.chat?.id ?? -1, 'declined', user['userObjectCloseLiveSupport'])).reply_markup)
@@ -759,7 +758,9 @@ async function main() {
         }
       })
 
-      await db.set(parseInt(user['activeHelperLiveSupport']))('state')('EndFunctionManager')
+      await dbRequest.ChangeAvaibiltyForOperator(parseInt(user['activeHelperLiveSupport']), true);
+
+      await db.set(parseInt(user['activeHelperLiveSupport']))('state')('EndFunctionManager');
       await set('state')('EndFunctionManager');
     }
     else{
@@ -774,8 +775,7 @@ async function main() {
 
   onTextMessage('OperatorLiveSupportHandler', async(ctx, user, set, data) => {
     if (data.text === 'ВІДМІНА'){
-      const object = new ObjectId(user['operatorObjectCloseLiveSupport']),
-        [ messages, chats ] = await dbRequest.GetMessageIDsLiveSupport(object);
+      const [ messages, chats ] = await dbRequest.GetMessageIDsLiveSupport(new ObjectId(user['operatorObjectCloseLiveSupport']));
 
       for(let n = 0; n < messages.length; n++){
         await ctx.telegram.editMessageReplyMarkup(chats[n], messages[n], undefined, Markup.inlineKeyboard(liveKeyboard(ctx?.chat?.id ?? -1, 'declined', user['operatorObjectCloseLiveSupport'])).reply_markup)
@@ -795,22 +795,56 @@ async function main() {
         }
       })
 
+      await dbRequest.ChangeAvaibiltyForOperator(ctx?.chat?.id ?? -1, true);
+
       await db.set(parseInt(user['activeUserLiveSupport']))('state')('EndFunctionManager')
       await set('state')('EndFunctionManager');
     }
     else{
-      ctx.telegram.sendMessage(user['activeUserLiveSupport'], data.text, {
-        reply_markup: {
-          one_time_keyboard: true,
-          keyboard: keyboards.liveSupportProbablyCancel()
-        }
-      })
+      switch (true){
+        case CheckException.TextException(data):
+          ctx.telegram.sendMessage(user['activeUserLiveSupport'], data.text, {
+            reply_markup: {
+              one_time_keyboard: true,
+              keyboard: keyboards.liveSupportProbablyCancel()
+            }
+          })
+          break;
+
+        case CheckException.FileException(data):
+          ctx.telegram.sendDocument(user['activeUserLiveSupport'], data.file, {
+            reply_markup: {
+              one_time_keyboard: true,
+              keyboard: keyboards.liveSupportProbablyCancel()
+            }
+          })
+          break;
+
+        case CheckException.LocationException(data):
+          ctx.telegram.sendLocation(user['activeUserLiveSupport'], data.location[0], data.location[1], {
+            reply_markup: {
+              one_time_keyboard: true,
+              keyboard: keyboards.liveSupportProbablyCancel()
+            }
+          })
+          break;
+
+        case CheckException.PhoneException(data):
+          ctx.telegram.sendContact(user['activeUserLiveSupport'], data.location[0], data.location[1], {
+            reply_markup: {
+              one_time_keyboard: true,
+              keyboard: keyboards.liveSupportProbablyCancel()
+            }
+          })
+          break;
+      }
     }
   })
 
   bot.action(/^acceptSupport:(\d+),(.+)$/, async (ctx) => {
     const id = Number.parseInt(ctx.match[1]),
-      [ messages, chats ] = await dbRequest.GetMessageIDsLiveSupport(new ObjectId(ctx.match[2]));
+      object = ctx.match[2],
+      [ messages, chats ] = await dbRequest.GetMessageIDsLiveSupport(new ObjectId(object));
     let operator: string | undefined = '';
 
     try {
@@ -819,11 +853,12 @@ async function main() {
           await ctx.editMessageReplyMarkup(Markup.inlineKeyboard(liveKeyboard(id, 'accepted', ctx.match[2])).reply_markup);
           operator = await db.get(chats[n])('name');
           await db.set(id)('activeHelperLiveSupport')(chats[n]);
-          await db.set(id)('operatorObjectCloseLiveSupport')(ctx.match[2]);
-          await db.set(chats[n])('userObjectCloseLiveSupport')(ctx.match[2]);
+          await db.set(id)('userObjectCloseLiveSupport')(object);
+          await db.set(chats[n])('operatorObjectCloseLiveSupport')(object);
           await db.set(chats[n])('activeUserLiveSupport')(id.toString());
           await db.set(chats[n])('state')('OperatorLiveSupportHandler');
           await db.set(id)('state')('UserLiveSupportHandler');
+          await dbRequest.ChangeAvaibiltyForOperator(chats[n], false);
         }
         else await ctx.telegram.editMessageReplyMarkup(chats[n], messages[n], undefined, Markup.inlineKeyboard(liveKeyboard(id, 'busy', ctx.match[2])).reply_markup)
       }

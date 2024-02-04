@@ -8,7 +8,7 @@ type ActionType<T> = (ctx: Context<Update>, user: {[x: string]: string}, set: (k
 export default async function arch() {
   const [ bot, db, bankdb ] = await init();
 
-  const onContactMessage = (startState: UserScriptState, action: ActionType<{ phone_number: string; text: string, photo: string, file: string, stickers: string, video: string, location: number, polls: string, voice: string, audio: string, video_circle: string }>) => 
+  const onContactMessage = (startState: UserScriptState, action: ActionType<{ phone_number: string; text: string, photo: string, file: string, stickers: string, video: string, location: number[], polls: string, voice: string, audio: string, video_circle: string }>) => 
   bot.on('message', async (ctx, next) => {
     const id = ctx.chat.id,
       user = (await db.getAll(id)()),
@@ -21,77 +21,77 @@ export default async function arch() {
       switch (true) {
         case 'contact' in message:
           if ('contact' in message) {
-            action(ctx, user, set, { phone_number: message.contact.phone_number, text: '', photo: '', file: '', stickers: '', video: '', location: -1, polls: '', voice: '', audio: '', video_circle: '' });
+            action(ctx, user, set, { phone_number: message.contact.phone_number, text: '', photo: '', file: '', stickers: '', video: '', location: [ -1 ], polls: '', voice: '', audio: '', video_circle: '' });
             console.log(`TYPE: ONCONTACTMESSAGE, TEXT&PHOTO = UNDEFINED, NUMBER: ${message.contact.phone_number}, CODE: 0\n`);
           } 
           break
 
         case 'text' in message:
           if ('text' in message) {
-            action(ctx, user, set, { phone_number: '', text: message.text, photo: '', file: '', stickers: '', video: '', location: -1, polls: '', voice: '', audio: '', video_circle: '' });
+            action(ctx, user, set, { phone_number: '', text: message.text, photo: '', file: '', stickers: '', video: '', location: [ -1 ], polls: '', voice: '', audio: '', video_circle: '' });
             console.log(`\n(!TYPE: ONCONTACTMESSAGE, OTHERDATA = UNDEFINED, TEXT = ${message.text}, CODE: 1\nstate: ${startState}, message: ${message.text}`);
           }
           break;
 
         case 'photo' in message:
           if ('photo' in message) {
-            action(ctx, user, set, { phone_number: '', text: '', photo: message.photo[0].file_id, file: '', stickers: '', video: '', location: -1, polls: '', voice: '', audio: '', video_circle: '' });
+            action(ctx, user, set, { phone_number: '', text: '', photo: message.photo[0].file_id, file: '', stickers: '', video: '', location: [ -1 ], polls: '', voice: '', audio: '', video_circle: '' });
             console.log(`(!)TYPE: ONCONTACTMESSAGE, NUMBER&TEXT = UNDEFINED, PHOTO GET, CODE: 2\n`);
           }
           break;
 
         case 'document' in message:
           if ('document' in message) {
-            action(ctx, user, set, { phone_number: '', text: '', photo: '', file: message.document.file_id, stickers: '', video: '', location: -1, polls: '', voice: '', audio: '', video_circle: '' });
+            action(ctx, user, set, { phone_number: '', text: '', photo: '', file: message.document.file_id, stickers: '', video: '', location: [ -1 ], polls: '', voice: '', audio: '', video_circle: '' });
             console.log(`(!)TYPE: ONCONTACTMESSAGE, NUMBER&TEXT = UNDEFINED, FILE GET, CODE: 3\n`);
           }
           break;
 
         case 'sticker' in message:
           if ('sticker' in message) {
-            action(ctx, user, set, { phone_number: '', text: '', photo: '', file: '', stickers: message.sticker.file_id, video: '', location: -1, polls: '', voice: '', audio: '', video_circle: '' });
+            action(ctx, user, set, { phone_number: '', text: '', photo: '', file: '', stickers: message.sticker.file_id, video: '', location: [ -1 ], polls: '', voice: '', audio: '', video_circle: '' });
             console.log(`(!)TYPE: ONCONTACTMESSAGE, NUMBER&TEXT = UNDEFINED, STICKER GET, CODE: 4\n`);
           }
           break;
 
         case 'video' in message:
           if ('video' in message) {
-            action(ctx, user, set, { phone_number: '', text: '', photo: '', file: '', stickers: '', video: message.video.file_id, location: -1, polls: '', voice: '', audio: '', video_circle: '' });
+            action(ctx, user, set, { phone_number: '', text: '', photo: '', file: '', stickers: '', video: message.video.file_id, location: [ -1 ], polls: '', voice: '', audio: '', video_circle: '' });
             console.log(`(!)TYPE: ONCONTACTMESSAGE, NUMBER&TEXT = UNDEFINED, VIDEO GET, CODE: 5\n`);
           }
           break;
 
         case 'location' in message:
           if ('location' in message) {
-            action(ctx, user, set, { phone_number: '', text: '', photo: '', file: '', stickers: '', video:'', location: message.location.longitude, polls: '', voice: '', audio: '', video_circle: '' });
+            action(ctx, user, set, { phone_number: '', text: '', photo: '', file: '', stickers: '', video:'', location: [ message.location.latitude, message.location.longitude ], polls: '', voice: '', audio: '', video_circle: '' });
             console.log(`\n(!)TYPE: ONCONTACTMESSAGE, NUMBER&TEXT = UNDEFINED, LOCATION GET, CODE: 6\n`);
           }
           break;
 
         case 'poll' in message:
           if ('poll' in message) {
-            action(ctx, user, set, { phone_number: '', text: '', photo: '', file: '', stickers: '', video:'', location: -1, polls: message.poll.question, voice: '', audio: '', video_circle: '' });
+            action(ctx, user, set, { phone_number: '', text: '', photo: '', file: '', stickers: '', video:'', location: [ -1 ], polls: message.poll.question, voice: '', audio: '', video_circle: '' });
             console.log(`\n(!)TYPE: ONCONTACTMESSAGE, NUMBER&TEXT = UNDEFINED, POLL GET, CODE: 7\n`);
           }
           break;
 
         case 'voice' in message:
           if ('voice' in message) {
-            action(ctx, user, set, { phone_number: '', text: '', photo: '', file: '', stickers: '', video:'', location: -1, polls: '', voice: message.voice.file_id, audio: '', video_circle: '' });
+            action(ctx, user, set, { phone_number: '', text: '', photo: '', file: '', stickers: '', video:'', location: [ -1 ], polls: '', voice: message.voice.file_id, audio: '', video_circle: '' });
             console.log(`\n(!)TYPE: ONCONTACTMESSAGE, NUMBER&TEXT = UNDEFINED, VOICE GET, CODE: 8\n`);
           }
           break;
 
         case 'audio' in message:
           if ('audio' in message) {
-            action(ctx, user, set, { phone_number: '', text: '', photo: '', file: '', stickers: '', video:'', location: -1, polls: '', voice: '', audio: message.audio.file_id, video_circle: '' });
+            action(ctx, user, set, { phone_number: '', text: '', photo: '', file: '', stickers: '', video:'', location: [ -1 ], polls: '', voice: '', audio: message.audio.file_id, video_circle: '' });
             console.log(`\n(!)TYPE: ONCONTACTMESSAGE, NUMBER&TEXT = UNDEFINED, AUDIO GET, CODE: 8\n`);
           }
           break;
 
         case 'video_note' in message:
           if ('video_note' in message) {
-            action(ctx, user, set, { phone_number: '', text: '', photo: '', file: '', stickers: '', video:'', location: -1, polls: '', voice: '', audio: '', video_circle: message.video_note.file_id });
+            action(ctx, user, set, { phone_number: '', text: '', photo: '', file: '', stickers: '', video:'', location: [ -1 ], polls: '', voice: '', audio: '', video_circle: message.video_note.file_id });
             console.log(`\n(!)TYPE: ONCONTACTMESSAGE, NUMBER&TEXT = UNDEFINED, CIRCLE VIDEO GET, CODE: 9\n`);
           }
           break;
@@ -104,7 +104,7 @@ export default async function arch() {
     else return next();
   });
   
-  const onTextMessage = (startState: UserScriptState, action: ActionType<{ phone_number: string; text: string, photo: string, file: string, stickers: string, video: string, location: number, polls: string, voice: string, audio: string, video_circle: string }>) => 
+  const onTextMessage = (startState: UserScriptState, action: ActionType<{ phone_number: string; text: string, photo: string, file: string, stickers: string, video: string, location: number[], polls: string, voice: string, audio: string, video_circle: string }>) => 
   bot.on('message', async (ctx, next) => {
     const id = ctx.chat.id,
       user = (await db.getAll(id)()),
@@ -115,70 +115,70 @@ export default async function arch() {
       switch (true) {
         case 'text' in message:
           if ('text' in message) {
-            action(ctx, user, set, { phone_number: '', text: message.text, photo: '', file: '', stickers: '', video: '', location: -1, polls: '', voice: '', audio: '', video_circle: '' });
+            action(ctx, user, set, { phone_number: '', text: message.text, photo: '', file: '', stickers: '', video: '', location: [ -1 ], polls: '', voice: '', audio: '', video_circle: '' });
             console.log(`\nTYPE: ONTEXTMESSAGE, OTHERDATA = UNDEFINED, TEXT = ${message.text}, CODE: 2\nstate: ${startState}, message: ${message.text}`);
           }
           break;
 
         case 'photo' in message:
           if ('photo' in message) {
-            action(ctx, user, set, { phone_number: '', text: '', photo: message.photo[0].file_id, file: '', stickers: '', video: '', location: -1, polls: '', voice: '', audio: '', video_circle: '' });
+            action(ctx, user, set, { phone_number: '', text: '', photo: message.photo[0].file_id, file: '', stickers: '', video: '', location: [ -1 ], polls: '', voice: '', audio: '', video_circle: '' });
             console.log(`(!)TYPE: ONTEXTMESSAGE, NUMBER&TEXT = UNDEFINED, PHOTO GET, CODE: 2\n`);
           }
           break;
 
         case 'document' in message:
           if ('document' in message) {
-            action(ctx, user, set, { phone_number: '', text: '', photo: '', file: message.document.file_id, stickers: '', video: '', location: -1, polls: '', voice: '', audio: '', video_circle: '' });
+            action(ctx, user, set, { phone_number: '', text: '', photo: '', file: message.document.file_id, stickers: '', video: '', location: [ -1 ], polls: '', voice: '', audio: '', video_circle: '' });
             console.log(`(!)TYPE: ONTEXTMESSAGE, NUMBER&TEXT = UNDEFINED, FILE GET, CODE: 3\n`);
           }
           break;
 
         case 'sticker' in message:
           if ('sticker' in message) {
-            action(ctx, user, set, { phone_number: '', text: '', photo: '', file: '', stickers: message.sticker.file_id, video: '', location: -1, polls: '', voice: '', audio: '', video_circle: '' });
+            action(ctx, user, set, { phone_number: '', text: '', photo: '', file: '', stickers: message.sticker.file_id, video: '', location: [ -1 ], polls: '', voice: '', audio: '', video_circle: '' });
             console.log(`(!)TYPE: ONTEXTMESSAGE, NUMBER&TEXT = UNDEFINED, STICKER GET, CODE: 4\n`);
           }
           break;
 
         case 'video' in message:
           if ('video' in message) {
-            action(ctx, user, set, { phone_number: '', text: '', photo: '', file: '', stickers: '', video: message.video.file_id, location: -1, polls: '', voice: '', audio: '', video_circle: '' });
+            action(ctx, user, set, { phone_number: '', text: '', photo: '', file: '', stickers: '', video: message.video.file_id, location: [ -1 ], polls: '', voice: '', audio: '', video_circle: '' });
             console.log(`(!)TYPE: ONTEXTMESSAGE, NUMBER&TEXT = UNDEFINED, VIDEO GET, CODE: 5\n`);
           }
           break;
 
         case 'location' in message:
           if ('location' in message) {
-            action(ctx, user, set, { phone_number: '', text: '', photo: '', file: '', stickers: '', video:'', location: message.location.longitude, polls: '', voice: '', audio: '', video_circle: '' });
+            action(ctx, user, set, { phone_number: '', text: '', photo: '', file: '', stickers: '', video:'', location: [ message.location.latitude,  message.location.longitude ], polls: '', voice: '', audio: '', video_circle: '' });
             console.log(`\n(!)TYPE: ONTEXTMESSAGE, NUMBER&TEXT = UNDEFINED, LOCATION GET, CODE: 6\n`);
           }
           break;
 
         case 'poll' in message:
           if ('poll' in message) {
-            action(ctx, user, set, { phone_number: '', text: '', photo: '', file: '', stickers: '', video:'', location: -1, polls: message.poll.question, voice: '', audio: '', video_circle: '' });
+            action(ctx, user, set, { phone_number: '', text: '', photo: '', file: '', stickers: '', video:'', location: [ -1 ], polls: message.poll.question, voice: '', audio: '', video_circle: '' });
             console.log(`\n(!)TYPE: ONTEXTMESSAGE, NUMBER&TEXT = UNDEFINED, POLL GET, CODE: 7\n`);
           }
           break;
 
         case 'voice' in message:
           if ('voice' in message) {
-            action(ctx, user, set, { phone_number: '', text: '', photo: '', file: '', stickers: '', video:'', location: -1, polls: '', voice: message.voice.file_id, audio: '', video_circle: '' });
+            action(ctx, user, set, { phone_number: '', text: '', photo: '', file: '', stickers: '', video:'', location: [ -1 ], polls: '', voice: message.voice.file_id, audio: '', video_circle: '' });
             console.log(`\n(!)TYPE: ONTEXTMESSAGE, NUMBER&TEXT = UNDEFINED, VOICE GET, CODE: 8\n`);
           }
           break;
 
         case 'audio' in message:
           if ('audio' in message) {
-            action(ctx, user, set, { phone_number: '', text: '', photo: '', file: '', stickers: '', video:'', location: -1, polls: '', voice: '', audio: message.audio.file_id, video_circle: '' });
+            action(ctx, user, set, { phone_number: '', text: '', photo: '', file: '', stickers: '', video:'', location: [ -1 ], polls: '', voice: '', audio: message.audio.file_id, video_circle: '' });
             console.log(`\n(!)TYPE: ONTEXTMESSAGE, NUMBER&TEXT = UNDEFINED, AUDIO GET, CODE: 8\n`);
           }
           break;
 
         case 'video_note' in message:
           if ('video_note' in message) {
-            action(ctx, user, set, { phone_number: '', text: '', photo: '', file: '', stickers: '', video:'', location: -1, polls: '', voice: '', audio: '', video_circle: message.video_note.file_id });
+            action(ctx, user, set, { phone_number: '', text: '', photo: '', file: '', stickers: '', video:'', location: [ -1 ], polls: '', voice: '', audio: '', video_circle: message.video_note.file_id });
             console.log(`\n(!)TYPE: ONTEXTMESSAGE, NUMBER&TEXT = UNDEFINED, CIRCLE VIDEO GET, CODE: 9\n`);
           }
           break;
@@ -457,10 +457,15 @@ export default async function arch() {
     async GetMessageIDsLiveSupport(oid: ObjectId){
       const object = await this.liveSupport.findOne({ _id: oid });
 
-      console.log(oid);
-      
-
       return [ object!.messageIDs, object!.chatIDs];
+    }
+
+    async ChangeAvaibiltyForOperator(operatorID: number, available: boolean){
+      const operator = await this.GetUserData(operatorID);
+      if (operator && operator.system_role === 'worker'){
+        await this.liveSupport.updateOne({id: operatorID}, {$set : {available: available ? "available" : "busy" }});
+      }
+      else return false;
     }
   }
 
