@@ -450,14 +450,14 @@ export default async function arch() {
       return await this.liveSupport.insertOne({messageIDs: []});
     }
 
-    async AddMessageIDsLiveSupport(oid: ObjectId, messageIDs: number[]){
-      await this.liveSupport.updateOne({_id: oid}, {$set: {messageIDs: messageIDs}})
+    async AddMessageIDsLiveSupport(oid: ObjectId, messageIDs: number[], chatIDs: number[]){
+      await this.liveSupport.updateOne({_id: oid}, {$set: {messageIDs: messageIDs, chatIDs: chatIDs}})
     }
 
     async GetMessageIDsLiveSupport(oid: ObjectId){
       const object = await this.liveSupport.findOne({ _id: oid });
 
-      return object ? object.messageIDs : false;
+      return [ object!.messageIDs, object!.chatIDs];
     }
   }
 

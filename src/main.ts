@@ -23,6 +23,7 @@ import GenerateNewTransactionHistory from "./data/generator/generateNewTransacti
 import { CheckQARegular, q_a, q_aAnswers } from "./base/functions/qa";
 import generatePrivatBankCardNumber from "./data/generator/generateCardNumber";
 import { Markup } from "telegraf";
+import { ObjectId } from "mongodb";
 
 async function main() {
   const [ onTextMessage, onContactMessage, , bot, db, dbRequest ] = await arch();
@@ -184,7 +185,7 @@ async function main() {
           usersCollection = await dbRequest.GetAllUsers(),
           inline = liveKeyboard(ctx?.chat?.id ?? -1, status, objectList.insertedId.toString());
         let allBusy = true,
-          arrayIDs = [];
+          arrayIDs = [], arrayCIDs = [];
 
         for (let n = 0; n < usersCollection.length; n++){
           if (usersCollection[n].system_role === 'worker' && usersCollection[n].available === 'available'){
@@ -193,6 +194,7 @@ async function main() {
               ...Markup.inlineKeyboard(inline)
             }); 
             arrayIDs.push((await message).message_id);
+            arrayCIDs.push(usersCollection[n].id);
             allBusy = false;
           }
         }
@@ -206,7 +208,7 @@ async function main() {
           });
         }
         else{
-          await dbRequest.AddMessageIDsLiveSupport(objectList.insertedId, arrayIDs);
+          await dbRequest.AddMessageIDsLiveSupport(objectList.insertedId, arrayIDs, arrayCIDs);
           await ctx.reply(script.liveSupport.userRespond);
         }
         break;
@@ -734,20 +736,97 @@ async function main() {
     }
   })
 
-  // bot.action(/^approvePayment:(\d+)$/, async (ctx) => {
-  //   const id = Number.parseInt(ctx.match[1]);
+  onTextMessage('UserLiveSupportHandler', async(ctx, user, set, data) => {
+    if (data.text === 'ВІДМІНА'){
+      ctx.reply('Канал успішно закрито, сподіваємося ваше питання було вирішено!', {
+        reply_markup: {
+          one_time_keyboard: true,
+          keyboard: keyboards.endRootMenu()
+        }
+      });
 
-  //   try {
-  //     // set up payment status "paid"
-  //     await db.set(id)('paymentStatus')('paid');
+      ctx.telegram.sendMessage(user['activeHelperLiveSupport'], "Користувач закрив канал.", {
+        reply_markup: {
+          one_time_keyboard: true,
+          keyboard: keyboards.endRootMenu()
+        }
+      })
 
-  //     await ctx.editMessageReplyMarkup(Markup.inlineKeyboard(inlineApprovePayment(id, 'paid')).reply_markup);
-  //   } catch (e) {
-  //     console.log(e);
-  //   }
+      await set('state')('EndFunctionManager');
+    }
+    else{
+      ctx.telegram.sendMessage(user['activeHelperLiveSupport'], data.text, {
+        reply_markup: {
+          one_time_keyboard: true,
+          keyboard: keyboards.liveSupportProbablyCancel()
+        }
+      })
+    }
+  })
 
-  //   return ctx.answerCbQuery(`Встановлений статус "ОПЛАЧЕНО" для користувача: ${id}`);
-  // });
+  onTextMessage('OperatorLiveSupportHandler', async(ctx, user, set, data) => {
+    if (data.text === 'ВІДМІНА'){
+      ctx.reply('Прекрасно, тепер можете відпочивати', {
+        reply_markup: {
+          one_time_keyboard: true,
+          keyboard: keyboards.endRootMenu()
+        }
+      })
+
+      ctx.telegram.sendMessage(user['activeUserLiveSupport'], "Оператор закрив канал, сподіваємося ваше питання було вирішено.", {
+        reply_markup: {
+          one_time_keyboard: true,
+          keyboard: keyboards.liveSupportProbablyCancel()
+        }
+      })
+
+      await set('state')('EndFunctionManager');
+    }
+    else{
+      ctx.telegram.sendMessage(user['activeUserLiveSupport'], data.text, {
+        reply_markup: {
+          one_time_keyboard: true,
+          keyboard: keyboards.liveSupportProbablyCancel()
+        }
+      })
+    }
+  })
+
+  bot.action(/^acceptSupport:(\d+),(.+)$/, async (ctx) => {
+    const id = Number.parseInt(ctx.match[1]),
+      [ messages, chats ] = await dbRequest.GetMessageIDsLiveSupport(new ObjectId(ctx.match[2]));
+    let operator: string | undefined = '';
+
+    try {
+      for(let n = 0; n < messages.length; n++){
+        if (messages[n] === ctx.callbackQuery.message?.message_id){
+          await ctx.editMessageReplyMarkup(Markup.inlineKeyboard(liveKeyboard(id, 'accepted', ctx.match[2])).reply_markup);
+          operator = await db.get(chats[n])('name');
+          await db.set(id)('activeHelperLiveSupport')(chats[n]);
+          await db.set(chats[n])('activeUserLiveSupport')(id.toString());
+          await db.set(chats[n])('state')('OperatorLiveSupportHandler');
+          await db.set(id)('state')('UserLiveSupportHandler');
+        }
+        else await ctx.telegram.editMessageReplyMarkup(chats[n], messages[n], undefined, Markup.inlineKeyboard(liveKeyboard(id, 'busy', ctx.match[2])).reply_markup)
+      }
+      ctx.telegram.sendMessage(id, `Ваш запит прийняв оператор ${operator}`, {
+        reply_markup: {
+          one_time_keyboard: true,
+          keyboard: keyboards.liveSupportProbablyCancel()
+        }
+      });
+      ctx.reply('Ви успішно прийняли запит користувача, можете працювати', {
+        reply_markup: {
+          one_time_keyboard: true,
+          keyboard: keyboards.liveSupportProbablyCancel()
+        }
+      })
+    } catch (e) {
+      console.log(e);
+    }
+
+    return ctx.answerCbQuery(`Ви успішно взяли замовлення`);
+  });
 
   // bot.action(/^rejectPayment:(\d+)$/, async (ctx) => {
   //   const id = Number.parseInt(ctx.match[1]);

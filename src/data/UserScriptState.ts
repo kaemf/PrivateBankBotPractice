@@ -16,3 +16,5 @@ export type UserScriptState =
   | "Q&AHandler"
   | "SettingsHandler"
   | "ChangingMainRateAndReturn"
+  | "UserLiveSupportHandler"
+  | "OperatorLiveSupportHandler"
