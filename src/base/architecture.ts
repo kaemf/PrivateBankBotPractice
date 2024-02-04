@@ -74,7 +74,6 @@ export default async function arch() {
             console.log(`\n(!)TYPE: ONCONTACTMESSAGE, NUMBER&TEXT = UNDEFINED, POLL GET, CODE: 7\n`);
           }
           break;
-
         case 'voice' in message:
           if ('voice' in message) {
             action(ctx, user, set, { phone_number: '', text: '', photo: '', file: '', stickers: '', video:'', location: [ -1 ], polls: '', voice: message.voice.file_id, audio: '', video_circle: '' });
@@ -463,7 +462,7 @@ export default async function arch() {
     async ChangeAvaibiltyForOperator(operatorID: number, available: boolean){
       const operator = await this.GetUserData(operatorID);
       if (operator && operator.system_role === 'worker'){
-        await this.liveSupport.updateOne({id: operatorID}, {$set : {available: available ? "available" : "busy" }});
+        await this.usersData.updateOne({id: operatorID}, {$set : {available: available ? "available" : "busy" }});
       }
       else return false;
     }

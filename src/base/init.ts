@@ -1,7 +1,7 @@
 // PrivateBank Bot Practive University Work
 // Developed by Yaroslav Volkivskyi (TheLaidSon)
 
-// Actual v0.0.4
+// Actual v1.0.0
 
 // Initialization File
 

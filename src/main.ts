@@ -1,7 +1,7 @@
 // PrivateBank Bot Practive University Work
 // Developed by Yaroslav Volkivskyi (TheLaidSon)
 
-// Actual v0.0.4
+// Actual v1.0.0
 
 // Main File
 
@@ -764,12 +764,129 @@ async function main() {
       await set('state')('EndFunctionManager');
     }
     else{
-      ctx.telegram.sendMessage(user['activeHelperLiveSupport'], data.text, {
-        reply_markup: {
-          one_time_keyboard: true,
-          keyboard: keyboards.liveSupportProbablyCancel()
-        }
-      })
+      switch(true){
+        case CheckException.TextException(data):
+          ctx.telegram.sendMessage(user['activeUserLiveSupport'], data.text, {
+            reply_markup: {
+              one_time_keyboard: true,
+              keyboard: keyboards.liveSupportProbablyCancel()
+            }
+          })
+          break;
+
+        case CheckException.FileException(data):
+          ctx.telegram.sendDocument(user['activeUserLiveSupport'], data.file, {
+            reply_markup: {
+              one_time_keyboard: true,
+              keyboard: keyboards.liveSupportProbablyCancel()
+            }
+          })
+          break;
+
+        case CheckException.PhotoException(data):
+          ctx.telegram.sendPhoto(user['activeUserLiveSupport'], data.photo, {
+            reply_markup: {
+              one_time_keyboard: true,
+              keyboard: keyboards.liveSupportProbablyCancel()
+            }
+          })
+          break;
+
+        case CheckException.LocationException(data):
+          ctx.telegram.sendLocation(user['activeUserLiveSupport'], data.location[0], data.location[1], {
+            reply_markup: {
+              one_time_keyboard: true,
+              keyboard: keyboards.liveSupportProbablyCancel()
+            }
+          })
+          break;
+
+        case CheckException.PhoneException(data):
+          ctx.telegram.sendContact(user['activeUserLiveSupport'], data.phone_number, user['name'], {
+            reply_markup: {
+              one_time_keyboard: true,
+              keyboard: keyboards.liveSupportProbablyCancel()
+            }
+          })
+          break;
+  
+        case CheckException.PollsException(data):
+          ctx.telegram.sendMessage(user['activeUserLiveSupport'], "Користувач надіслав тип повідомлення Polls (котрий не підтримується)", {
+            reply_markup: {
+              one_time_keyboard: true,
+              keyboard: keyboards.liveSupportProbablyCancel()
+            }
+          })
+  
+          ctx.reply("Вибачте, але такий тип повідомлення у нас не підтримується.", {
+            reply_markup: {
+              one_time_keyboard: true,
+              keyboard: keyboards.liveSupportProbablyCancel()
+            }
+          })
+          break;
+
+        case CheckException.StickerException(data):
+          ctx.telegram.sendSticker(user['activeUserLiveSupport'], data.stickers, {
+            reply_markup: {
+              one_time_keyboard: true,
+              keyboard: keyboards.liveSupportProbablyCancel()
+            }
+          })
+          break;
+
+        case CheckException.VideoException(data):
+          ctx.telegram.sendVideo(user['activeUserLiveSupport'], data.video, {
+            reply_markup: {
+              one_time_keyboard: true,
+              keyboard: keyboards.liveSupportProbablyCancel()
+            }
+          })
+          break;
+
+        case CheckException.AudioException(data):
+          ctx.telegram.sendAudio(user['activeUserLiveSupport'], data.audio, {
+            reply_markup: {
+              one_time_keyboard: true,
+              keyboard: keyboards.liveSupportProbablyCancel()
+            }
+          })
+          break;
+        
+        case CheckException.VoiceException(data):
+          ctx.telegram.sendVoice(user['activeUserLiveSupport'], data.voice, {
+            reply_markup: {
+              one_time_keyboard: true,
+              keyboard: keyboards.liveSupportProbablyCancel()
+            }
+          })
+          break;
+        
+        case CheckException.VideoNoteException(data):
+          ctx.telegram.sendAudio(user['activeUserLiveSupport'], data.video_circle, {
+            reply_markup: {
+              one_time_keyboard: true,
+              keyboard: keyboards.liveSupportProbablyCancel()
+            }
+          })
+          break;
+        
+        default:
+          ctx.reply("Вибачте, але таке не підтримується", {
+            reply_markup: {
+              one_time_keyboard: true,
+              keyboard: keyboards.liveSupportProbablyCancel()
+            }
+          });
+
+          ctx.telegram.sendMessage(user['activeUserLiveSupport'], "Користувач надіслав непідтримуваний тип повідомлення.", {
+            reply_markup: {
+              one_time_keyboard: true,
+              keyboard: keyboards.liveSupportProbablyCancel()
+            }
+          })
+          break;
+      }
     }
   })
 
@@ -801,7 +918,7 @@ async function main() {
       await set('state')('EndFunctionManager');
     }
     else{
-      switch (true){
+      switch(true){
         case CheckException.TextException(data):
           ctx.telegram.sendMessage(user['activeUserLiveSupport'], data.text, {
             reply_markup: {
@@ -820,6 +937,15 @@ async function main() {
           })
           break;
 
+        case CheckException.PhotoException(data):
+          ctx.telegram.sendPhoto(user['activeUserLiveSupport'], data.photo, {
+            reply_markup: {
+              one_time_keyboard: true,
+              keyboard: keyboards.liveSupportProbablyCancel()
+            }
+          })
+          break;
+
         case CheckException.LocationException(data):
           ctx.telegram.sendLocation(user['activeUserLiveSupport'], data.location[0], data.location[1], {
             reply_markup: {
@@ -830,7 +956,84 @@ async function main() {
           break;
 
         case CheckException.PhoneException(data):
-          ctx.telegram.sendContact(user['activeUserLiveSupport'], data.location[0], data.location[1], {
+          ctx.telegram.sendContact(user['activeUserLiveSupport'], data.phone_number, user['name'], {
+            reply_markup: {
+              one_time_keyboard: true,
+              keyboard: keyboards.liveSupportProbablyCancel()
+            }
+          })
+          break;
+  
+        case CheckException.PollsException(data):
+          ctx.telegram.sendMessage(user['activeUserLiveSupport'], "Користувач надіслав тип повідомлення Polls (котрий не підтримується)", {
+            reply_markup: {
+              one_time_keyboard: true,
+              keyboard: keyboards.liveSupportProbablyCancel()
+            }
+          })
+  
+          ctx.reply("Вибачте, але такий тип повідомлення у нас не підтримується.", {
+            reply_markup: {
+              one_time_keyboard: true,
+              keyboard: keyboards.liveSupportProbablyCancel()
+            }
+          })
+          break;
+
+        case CheckException.StickerException(data):
+          ctx.telegram.sendSticker(user['activeUserLiveSupport'], data.stickers, {
+            reply_markup: {
+              one_time_keyboard: true,
+              keyboard: keyboards.liveSupportProbablyCancel()
+            }
+          })
+          break;
+
+        case CheckException.VideoException(data):
+          ctx.telegram.sendVideo(user['activeUserLiveSupport'], data.video, {
+            reply_markup: {
+              one_time_keyboard: true,
+              keyboard: keyboards.liveSupportProbablyCancel()
+            }
+          })
+          break;
+
+        case CheckException.AudioException(data):
+          ctx.telegram.sendAudio(user['activeUserLiveSupport'], data.audio, {
+            reply_markup: {
+              one_time_keyboard: true,
+              keyboard: keyboards.liveSupportProbablyCancel()
+            }
+          })
+          break;
+        
+        case CheckException.VoiceException(data):
+          ctx.telegram.sendVoice(user['activeUserLiveSupport'], data.voice, {
+            reply_markup: {
+              one_time_keyboard: true,
+              keyboard: keyboards.liveSupportProbablyCancel()
+            }
+          })
+          break;
+        
+        case CheckException.VideoNoteException(data):
+          ctx.telegram.sendAudio(user['activeUserLiveSupport'], data.video_circle, {
+            reply_markup: {
+              one_time_keyboard: true,
+              keyboard: keyboards.liveSupportProbablyCancel()
+            }
+          })
+          break;
+        
+        default:
+          ctx.reply("Вибачте, але таке не підтримується", {
+            reply_markup: {
+              one_time_keyboard: true,
+              keyboard: keyboards.liveSupportProbablyCancel()
+            }
+          });
+
+          ctx.telegram.sendMessage(user['activeUserLiveSupport'], "Користувач надіслав непідтримуваний тип повідомлення.", {
             reply_markup: {
               one_time_keyboard: true,
               keyboard: keyboards.liveSupportProbablyCancel()

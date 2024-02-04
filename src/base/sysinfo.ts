@@ -8,4 +8,4 @@ export function about(version: string) {
 <a href="https://www.instagram.com/watthatt/"><b>Instagram</b></a>\n`
 }
 
-export const botVersion = '0.0.5';
+export const botVersion = '1.0.0';
