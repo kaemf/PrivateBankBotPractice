@@ -13,21 +13,21 @@ export const liveKeyboard = (id: number, processStatus: string, oid: string): Hi
         case "accepted":
             return [
                 [
-                    Markup.button.callback("🟢 В процесі", `acceptedCheck:${id}`)
+                    Markup.button.callback("🟢 В процесі", `acceptedCheck`)
                 ]
             ];
 
         case "busy":
             return [
                 [
-                    Markup.button.callback("🔴 Прийнято іншим оператором", `busyCheck:${id}`)
+                    Markup.button.callback("🔴 Прийнято іншим оператором", `busyCheck`)
                 ]
             ];
 
         case "declined":
             return [
                 [
-                    Markup.button.callback("❌ Канал закритий", `declinedCheck:${id}`)
+                    Markup.button.callback("❌ Канал закритий", `declinedCheck`)
                 ]
             ];
 

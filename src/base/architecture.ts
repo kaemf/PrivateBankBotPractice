@@ -190,105 +190,6 @@ export default async function arch() {
     else return next();
     console.log(user['name'], '( @', user['username'], ')', '( id:', id, ')', user);
   });
-  
-  const onPhotoMessage = (startState: UserScriptState, action: ActionType<{ phone_number: string; text: string, photo: string, file: string, stickers: string, video: string, location: number, polls: string, voice: string, audio: string, video_circle: string }>) => 
-  bot.on('message', async (ctx, next) => {
-    const id = ctx.chat.id,
-      user = (await db.getAll(id)()),
-      set = db.set(ctx?.chat?.id),
-      message = ctx.message,
-      supportedFormats : string[] = ['.pdf', '.jpeg', '.jpg', '.png', '.heic'];
-      
-    if (user.state === startState) {
-      console.log(user['state']);
-
-      switch(true){
-        case 'text' in message:
-          if ('text' in message) {
-            action(ctx, user, set, { phone_number: '', text: message.text, photo: '', file: '', stickers: '', video: '', location: -1, polls: '', voice: '', audio: '', video_circle: '' });
-            console.log(`(!)TYPE: ONPHOTOMESSAGE, NUMBER&PHOTO = UNDEFINED, TEXT: ${message.text}, CODE: 1\n`);
-          }
-          break;
-
-        case 'photo' in message:
-          if ('photo' in message) {
-            action(ctx, user, set, { phone_number: '', text: '', photo: message.photo[0].file_id, file: '', stickers: '', video: '', location: -1, polls: '', voice: '', audio: '', video_circle: '' });
-            console.log(`TYPE: ONPHOTOMESSAGE, NUMBER&TEXT = UNDEFINED, PHOTO GET, CODE: 2\n`);
-          }
-          break;
-
-        case 'document' in message:
-          if ('document' in message) {
-            const fileExtension = message.document.file_name!.substr(message.document.file_name!.lastIndexOf('.')).toLowerCase() || '';
-    
-            if (supportedFormats.includes(fileExtension)){
-              action(ctx, user, set, { phone_number: '', text: '', photo: '', file: message.document.file_id, stickers: '', video: '', location: -1, polls: '', voice: '', audio: '', video_circle: '' });
-              console.log(`TYPE: ONPHOTOMESSAGE, NUMBER&TEXT = UNDEFINED, FILE GET (${fileExtension}), CODE: 3\n`);
-            }
-            else{
-              action(ctx, user, set, { phone_number: '', text: '', photo: '', file: '', stickers: '', video: '', location: -1, polls: '', voice: '', audio: '', video_circle: '' });
-              console.log(`(!)TYPE: ONPHOTOMESSAGE, NUMBER&TEXT = UNDEFINED, UNSUPPORTED FILE GET (${fileExtension}), CODE: 3\n`);
-            }
-          }
-          break;
-
-        case 'sticker' in message:
-          if ('sticker' in message) {
-            action(ctx, user, set,{ phone_number: '', text: '', photo: '', file: '', stickers: message.sticker.file_id, video: '', location: -1, polls: '', voice: '', audio: '', video_circle: '' });
-            console.log(`(!)TYPE: ONPHOTOMESSAGE, NUMBER&TEXT = UNDEFINED, STICKER GET, CODE: 4\n`);
-          }
-          break;
-
-        case 'video' in message:
-          if ('video' in message) {
-            action(ctx, user, set, { phone_number: '', text: '', photo: '', file: '', stickers: '', video: message.video.file_id, location: -1, polls: '', voice: '', audio: '', video_circle: '' });
-            console.log(`(!)TYPE: ONPHOTOMESSAGE, NUMBER&TEXT = UNDEFINED, VIDEO GET, CODE: 5\n`);
-          }
-          break;
-
-        case 'location' in message:
-          if ('location' in message) {
-            action(ctx, user, set, { phone_number: '', text: '', photo: '', file: '', stickers: '', video:'', location: message.location.longitude, polls: '', voice: '', audio: '', video_circle: '' });
-            console.log(`\n(!)TYPE: ONPHOTOMESSAGE, NUMBER&TEXT = UNDEFINED, LOCATION GET, CODE: 6\n`);
-          }
-          break;
-
-        case 'poll' in message:
-          if ('poll' in message) {
-            action(ctx, user, set, { phone_number: '', text: '', photo: '', file: '', stickers: '', video:'', location: -1, polls: message.poll.question, voice: '', audio: '', video_circle: '' });
-            console.log(`\n(!)TYPE: ONPHOTOMESSAGE, NUMBER&TEXT = UNDEFINED, POLL GET, CODE: 7\n`);
-          }
-          break;
-
-        case 'voice' in message:
-          if ('voice' in message) {
-            action(ctx, user, set, { phone_number: '', text: '', photo: '', file: '', stickers: '', video:'', location: -1, polls: '', voice: message.voice.file_id, audio: '', video_circle: '' });
-            console.log(`\n(!)TYPE: ONPHOTOMESSAGE, NUMBER&TEXT = UNDEFINED, VOICE GET, CODE: 8\n`);
-          }
-          break;
-
-        case 'audio' in message:
-          if ('audio' in message) {
-            action(ctx, user, set, { phone_number: '', text: '', photo: '', file: '', stickers: '', video:'', location: -1, polls: '', voice: '', audio: message.audio.file_id, video_circle: '' });
-            console.log(`\n(!)TYPE: ONPHOTOMESSAGE, NUMBER&TEXT = UNDEFINED, AUDIO GET, CODE: 8\n`);
-          }
-          break;
-
-        case 'video_note' in message:
-          if ('video_note' in message) {
-            action(ctx, user, set, { phone_number: '', text: '', photo: '', file: '', stickers: '', video:'', location: -1, polls: '', voice: '', audio: '', video_circle: message.video_note.file_id });
-            console.log(`\n(!)TYPE: ONPHOTOMESSAGE, NUMBER&TEXT = UNDEFINED, CIRCLE VIDEO GET, CODE: 9\n`);
-          }
-          break;
-
-        default:
-          console.log('\n(!!)UNDEFINED OF TYPE MESSAGE, CODE: RED');
-          break;
-
-      }
-    }
-    else return next();
-  });
 
   class DBRequest{
     private usersData = bankdb.db('PrivateBankPractice').collection('userCollection');
@@ -470,5 +371,5 @@ export default async function arch() {
 
   const dbRequest : DBRequest = new DBRequest();
 
-  return [onTextMessage, onContactMessage, onPhotoMessage, bot, db, dbRequest] as const;
+  return [onTextMessage, onContactMessage, bot, db, dbRequest] as const;
 }

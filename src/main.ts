@@ -26,7 +26,7 @@ import { Markup } from "telegraf";
 import { ObjectId } from "mongodb";
 
 async function main() {
-  const [ onTextMessage, onContactMessage, , bot, db, dbRequest ] = await arch();
+  const [ onTextMessage, onContactMessage, bot, db, dbRequest ] = await arch();
 
   //Begin bot work, collecting user data (his telegram name)
   bot.start((ctx) => {
@@ -1084,48 +1084,21 @@ async function main() {
     return ctx.answerCbQuery(`Ви успішно взяли замовлення`);
   });
 
-  // bot.action(/^rejectPayment:(\d+)$/, async (ctx) => {
-  //   const id = Number.parseInt(ctx.match[1]);
+  bot.action(/^acceptedCheck$/, (ctx) => {
+    return ctx.answerCbQuery(`Ви вже прийняли цього користувача.`);
+  });
 
-  //   try {
-  //     // set up payment status "no paid"
-  //     await db.set(id)('paymentStatus')('nopaid');
-      
-  //     await ctx.editMessageReplyMarkup(Markup.inlineKeyboard(inlineApprovePayment(id, 'nopaid')).reply_markup);
+  bot.action(/^busyCheck$/, (ctx) => {
+    return ctx.answerCbQuery(`Цього користувача прийняв ішний оператор.`);
+  });
 
-  //   } catch (e) {
-  //     console.log(e);
-  //   }
+  bot.action(/^declinedCheck$/, (ctx) => {
+    return ctx.answerCbQuery(`Канал вже закритий, не актуально.`);
+  });
 
-  //   return ctx.answerCbQuery(`Встановлений статус "НЕ ОПЛАЧЕНО" для користувача: ${id}`);
-
-  // });
-
-  // bot.action(/^resetPaymentStatus:(\d+)$/, async (ctx) => {
-  //   const id = Number.parseInt(ctx.match[1]);
-
-  //   try {
-  //     // set up payment status "unknown"
-  //     await db.set(id)('paymentStatus')('unknown');
-
-  //     await ctx.editMessageReplyMarkup(Markup.inlineKeyboard(inlineApprovePayment(id, 'unknown')).reply_markup);
-
-  //   } catch (e) {
-  //     console.log(e);
-  //   }
-
-  //   return ctx.answerCbQuery(`Встановлений статус "НЕ ВИЗНАЧЕНИЙ" для користувача: ${id}`);
-  // });
-
-  // bot.action(/^paidCheck:(\d+)$/, (ctx) => {
-  //   const id = Number.parseInt(ctx.match[1]);
-  //   return ctx.answerCbQuery(`Статус користувача ${id} - Стан: ОПЛАЧЕНО`);
-  // });
-
-  // bot.action(/^nopaidCheck:(\d+)$/, (ctx) => {
-  //   const id = Number.parseInt(ctx.match[1]);
-  //   return ctx.answerCbQuery(`Статус користувача ${id} - Стан: НЕ ОПЛАЧЕНО`);
-  // });
+  bot.action(/^errorCheck$/, (ctx) => {
+    return ctx.answerCbQuery(`Помилка, повідомте підтримку.`);
+  });
 
   bot.launch();
 }
