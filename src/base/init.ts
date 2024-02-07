@@ -41,8 +41,7 @@ export default async function init() {
   console.log("Done")
 
   console.log("Creating telegraf bot instanse...");
-  //dev
-  const bot = new Telegraf("6192445742:AAHSlflbQoeylaqx3hZAh0WkS3fZ1Bt8sdU");
+  const bot = new Telegraf("6540958808:AAEVj-ZjoVKjkylWdJU8uljzL63mo703JUk");
   console.log("Done");
 
   console.log('\n\n BOT READY TO WORK!\n\n');
