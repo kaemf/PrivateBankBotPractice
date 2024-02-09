@@ -7,6 +7,3 @@ export default function Timer() {
 
     return cronExpression;
 }
-
-
-//18

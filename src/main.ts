@@ -766,7 +766,7 @@ async function main() {
     else{
       switch(true){
         case CheckException.TextException(data):
-          ctx.telegram.sendMessage(user['activeUserLiveSupport'], data.text, {
+          ctx.telegram.sendMessage(user['activeHelperLiveSupport'], data.text, {
             reply_markup: {
               one_time_keyboard: true,
               keyboard: keyboards.liveSupportProbablyCancel()
@@ -775,7 +775,7 @@ async function main() {
           break;
 
         case CheckException.FileException(data):
-          ctx.telegram.sendDocument(user['activeUserLiveSupport'], data.file, {
+          ctx.telegram.sendDocument(user['activeHelperLiveSupport'], data.file, {
             reply_markup: {
               one_time_keyboard: true,
               keyboard: keyboards.liveSupportProbablyCancel()
@@ -784,7 +784,7 @@ async function main() {
           break;
 
         case CheckException.PhotoException(data):
-          ctx.telegram.sendPhoto(user['activeUserLiveSupport'], data.photo, {
+          ctx.telegram.sendPhoto(user['activeHelperLiveSupport'], data.photo, {
             reply_markup: {
               one_time_keyboard: true,
               keyboard: keyboards.liveSupportProbablyCancel()
@@ -793,7 +793,7 @@ async function main() {
           break;
 
         case CheckException.LocationException(data):
-          ctx.telegram.sendLocation(user['activeUserLiveSupport'], data.location[0], data.location[1], {
+          ctx.telegram.sendLocation(user['activeHelperLiveSupport'], data.location[0], data.location[1], {
             reply_markup: {
               one_time_keyboard: true,
               keyboard: keyboards.liveSupportProbablyCancel()
@@ -802,7 +802,7 @@ async function main() {
           break;
 
         case CheckException.PhoneException(data):
-          ctx.telegram.sendContact(user['activeUserLiveSupport'], data.phone_number, user['name'], {
+          ctx.telegram.sendContact(user['activeHelperLiveSupport'], data.phone_number, user['name'], {
             reply_markup: {
               one_time_keyboard: true,
               keyboard: keyboards.liveSupportProbablyCancel()
@@ -811,7 +811,7 @@ async function main() {
           break;
   
         case CheckException.PollsException(data):
-          ctx.telegram.sendMessage(user['activeUserLiveSupport'], "Користувач надіслав тип повідомлення Polls (котрий не підтримується)", {
+          ctx.telegram.sendMessage(user['activeHelperLiveSupport'], "Користувач надіслав тип повідомлення Polls (котрий не підтримується)", {
             reply_markup: {
               one_time_keyboard: true,
               keyboard: keyboards.liveSupportProbablyCancel()
@@ -827,7 +827,7 @@ async function main() {
           break;
 
         case CheckException.StickerException(data):
-          ctx.telegram.sendSticker(user['activeUserLiveSupport'], data.stickers, {
+          ctx.telegram.sendSticker(user['activeHelperLiveSupport'], data.stickers, {
             reply_markup: {
               one_time_keyboard: true,
               keyboard: keyboards.liveSupportProbablyCancel()
@@ -836,7 +836,7 @@ async function main() {
           break;
 
         case CheckException.VideoException(data):
-          ctx.telegram.sendVideo(user['activeUserLiveSupport'], data.video, {
+          ctx.telegram.sendVideo(user['activeHelperLiveSupport'], data.video, {
             reply_markup: {
               one_time_keyboard: true,
               keyboard: keyboards.liveSupportProbablyCancel()
@@ -845,7 +845,7 @@ async function main() {
           break;
 
         case CheckException.AudioException(data):
-          ctx.telegram.sendAudio(user['activeUserLiveSupport'], data.audio, {
+          ctx.telegram.sendAudio(user['activeHelperLiveSupport'], data.audio, {
             reply_markup: {
               one_time_keyboard: true,
               keyboard: keyboards.liveSupportProbablyCancel()
@@ -854,7 +854,7 @@ async function main() {
           break;
         
         case CheckException.VoiceException(data):
-          ctx.telegram.sendVoice(user['activeUserLiveSupport'], data.voice, {
+          ctx.telegram.sendVoice(user['activeHelperLiveSupport'], data.voice, {
             reply_markup: {
               one_time_keyboard: true,
               keyboard: keyboards.liveSupportProbablyCancel()
@@ -863,7 +863,7 @@ async function main() {
           break;
         
         case CheckException.VideoNoteException(data):
-          ctx.telegram.sendAudio(user['activeUserLiveSupport'], data.video_circle, {
+          ctx.telegram.sendAudio(user['activeHelperLiveSupport'], data.video_circle, {
             reply_markup: {
               one_time_keyboard: true,
               keyboard: keyboards.liveSupportProbablyCancel()
@@ -879,7 +879,7 @@ async function main() {
             }
           });
 
-          ctx.telegram.sendMessage(user['activeUserLiveSupport'], "Користувач надіслав непідтримуваний тип повідомлення.", {
+          ctx.telegram.sendMessage(user['activeHelperLiveSupport'], "Користувач надіслав непідтримуваний тип повідомлення.", {
             reply_markup: {
               one_time_keyboard: true,
               keyboard: keyboards.liveSupportProbablyCancel()
