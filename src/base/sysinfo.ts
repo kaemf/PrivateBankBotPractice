@@ -4,7 +4,7 @@ export function about(version: string) {
 Версія: <b>${version}</b>\n
 Розробник: <b>TheLaidSon (Yaroslav Volkivskyi)</b>\n
 Контакти:
-<a href="https://t.me/XCoooREOCTa"><b>Telegram</b></a> <b>(@XCoooREOCTa)</b>
+<a href="https://t.me/darksidecookis"><b>Telegram</b></a> <b>(@darksidecookis)</b>
 <a href="https://www.instagram.com/watthatt/"><b>Instagram</b></a>\n`
 }
 

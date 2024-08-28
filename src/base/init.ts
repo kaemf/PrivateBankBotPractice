@@ -9,6 +9,9 @@ import { Telegraf } from "telegraf";
 import { createClient } from "redis";
 import { MongoClient } from "mongodb";
 import { botVersion } from "./sysinfo";
+import detenv from "dotenv";
+
+detenv.config();
 
 async function connectToMainDB() {
   try {
@@ -41,7 +44,7 @@ export default async function init() {
   console.log("Done")
 
   console.log("Creating telegraf bot instanse...");
-  const bot = new Telegraf("6540958808:AAEVj-ZjoVKjkylWdJU8uljzL63mo703JUk");
+  const bot = new Telegraf(process.env.TOKEN as string);
   console.log("Done");
 
   console.log('\n\n BOT READY TO WORK!\n\n');
